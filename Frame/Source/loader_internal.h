@@ -38,3 +38,16 @@ loader_MapImageData(
 	__inout HMODULE hDll
 );
 
+/**********************************************************************************************************************
+	Function	:	loader_GetSectionPermissions
+	Parameters	:	@pvImage[in\out\opt] -
+					@hDll[in\out\opt] -
+	Return		:	FRAMESTATUS
+	Remarks		:
+**********************************************************************************************************************/
+DWORD
+loader_GetSectionPermissions(
+	__in DWORD dwSectionCharacteristics
+);
+
+

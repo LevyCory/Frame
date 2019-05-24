@@ -27,7 +27,7 @@ loader_AllocateImageMemory(
 	ASSERT(NULL != pvDll);
 	ASSERT(NULL != phDll);
 
-	hDll = VirtualAlloc(ptHeader->ImageBase, ptHeader->SizeOfImage, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	hDll = VirtualAlloc(ptHeader->ImageBase, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
 	if (NULL == hDll)
 	{
 		hDll = VirtualAlloc(NULL, 1, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -60,6 +60,27 @@ loader_MapImageData(
 )
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	PIMAGE_SECTION_HEADER ptSection = FRAME_SECTION_HEADER(pvImage);
+	PVOID pvImageBase = (PVOID)FRAME_OPTIONAL_HEADER(pvImage)->ImageBase;
+	PVOID pvSevtionVirtualAddress = NULL;
+	DWORD i = 0;
+
+	for (i = 0; i < FRAME_FILE_HEADER(memory)->NumberOfSections; ptSection++)
+	{
+		pvSevtionVirtualAddress = ADD_POINTERS(pvImageBase, ptSection->VirtualAddress);
+
+		if(VirtualAlloc(
+			pvSevtionVirtualAddress,
+			ptSection->SizeOfRawData,
+			MEM_COMMIT,
+			loader_GetSectionPermissions(ptSection->Characteristics)))
+		{
+			eStatus = FRAMESTATUS_LOADER_MAPIMAGEDATA_VIRTUALALLOC_FAILED;
+			goto lblCleanup;
+		}
+
+		CopyMemory(pvSevtionVirtualAddress, (PVOID)ptSection->PointerToRawData, ptSection->SizeOfRawData);
+	}
 
 lblCleanup:
 	return eStatus;

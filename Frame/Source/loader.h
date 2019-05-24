@@ -16,3 +16,15 @@
 #include "frame_status.h"
 
 /** Functions ********************************************************************************************************/
+
+FRAMESTATUS
+LOADER_LoadLibrary(
+	__in PVOID pvAddress,
+	__deref_out PVOID pvDll
+);
+
+
+FRAMESTATUS
+LOADER_FreeLibrary(
+	__in_req HMODULE hDll
+);

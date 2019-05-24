@@ -31,6 +31,12 @@
 	Purpose		:
 	Parameters	:	@ parameter - Description
 **********************************************************************************************************************/
-#define FRAME_OPTIONAL_HEADER(memory)  (&(FRAME_PE_HEADER(memory)->OptionalHeader))
+#define FRAME_OPTIONAL_HEADER(memory) (&(FRAME_PE_HEADER(memory)->OptionalHeader))
 
+/**********************************************************************************************************************
+	Macro		:	FRAME_SECTION_HEADER
+	Purpose		:
+	Parameters	:	@ parameter - Description
+**********************************************************************************************************************/
+#define FRAME_SECTION_HEADER(memory) ((PIMAGE_SECTION_HEADER)ADD_POINTERS(memory, 0x138))
 
