@@ -50,4 +50,39 @@ loader_GetSectionPermissions(
 	__in DWORD dwSectionCharacteristics
 );
 
+/**********************************************************************************************************************
+	Function	:	loader_ResolveImageImports
+	Parameters	:	@param[in\out\opt] -
+					@param[in\out\opt] -
+	Return		:
+	Remarks		:
+**********************************************************************************************************************/
+FRAMESTATUS
+loader_ResolveImageImports(
+	__in_req PVOID pvImage,
+	__in PVOID pvImageBase
+);
 
+/**********************************************************************************************************************
+	Function	:	loader_ProtectMemory
+	Parameters	:	@param[in\out\opt] -
+					@param[in\out\opt] -
+	Return		:
+	Remarks		:
+**********************************************************************************************************************/
+FRAMESTATUS
+loader_ProtectMemory(
+	__in_req HMODULE hDll
+);
+
+/**********************************************************************************************************************
+	Function	:	loader_RelocateSymbols
+	Parameters	:	@param[in\out\opt] -
+					@param[in\out\opt] -
+	Return		:
+	Remarks		:
+**********************************************************************************************************************/
+FRAMESTATUS
+loader_RelocateSymbols(
+	__in_req HMODULE hDll
+);

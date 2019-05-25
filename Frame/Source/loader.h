@@ -19,7 +19,7 @@
 
 FRAMESTATUS
 LOADER_LoadLibrary(
-	__in PVOID pvAddress,
+	__in PVOID pvImage,
 	__deref_out PVOID pvDll
 );
 

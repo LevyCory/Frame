@@ -16,6 +16,8 @@ typedef enum _FRAMESTATUS
 
 	FRAMESTATUS_LOADER_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED,
 	FRAMESTATUS_LOADER_MAPIMAGEDATA_VIRTUALALLOC_FAILED,
+	FRAMESTATUS_LOADER_RESOLVEIMPORTS_LOADLIBRARY_FAILED,
+	FRAMESTATUS_LOADER_RESOLVEIMPORTS_GETPROCADDRESS_FAILED,
 
 	// Must be last
 	GLOBESTATUS_COUNT
@@ -36,6 +38,7 @@ typedef enum _FRAMESTATUS
 	Parameters	:	@status - The status to check.
 **********************************************************************************************************************/
 #define FRAME_FAILED(status) (!FRAME_SUCCESS(status))
+
 
 
 
