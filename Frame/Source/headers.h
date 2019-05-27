@@ -24,14 +24,14 @@
 	Purpose		:
 	Parameters	:	@ parameter - Description
 **********************************************************************************************************************/
-#define FRAME_FILE_HEADER(memory) (PIMAGE_FILE_HEADER)(&(FRAME_NT_HEADER(memory)->FileHeader))
+#define FRAME_FILE_HEADER(memory) ((PIMAGE_FILE_HEADER)(&FRAME_NT_HEADER(memory)->FileHeader))
 
 /**********************************************************************************************************************
 	Macro		:	FRAME_OPTIONAL_HEADER
 	Purpose		:
-		Parameters	:	@ parameter - Description
+	Parameters	:	@ parameter - Description
 **********************************************************************************************************************/
-#define FRAME_OPTIONAL_HEADER(memory) (PIMAGE_OPTIONAL_HEADER)(&(FRAME_NT_HEADER(memory)->OptionalHeader))
+#define FRAME_OPTIONAL_HEADER(memory) ((PIMAGE_OPTIONAL_HEADER)(&FRAME_NT_HEADER(memory)->OptionalHeader))
 
 /**********************************************************************************************************************
 	Macro		:	FRAME_SECTION_HEADER
@@ -52,5 +52,12 @@
 	Purpose		:	
 	Parameters	:	@ parameter - Description
 **********************************************************************************************************************/
-#define FRAME_IMPORT_LIST(ImageBase, Memory) (PIMAGE_IMPORT_DESCRIPTOR)ADD_POINTERS(ImageBase, FRAME_IMPORT_DIRECTORY_RVA(Memory))
+#define FRAME_IMPORT_LIST(Memory) (PIMAGE_IMPORT_DESCRIPTOR)ADD_POINTERS(Memory, FRAME_IMPORT_DIRECTORY_RVA(Memory))
+
+/**********************************************************************************************************************
+	Macro		:	FRAME_DATA_DIRECTORY
+	Purpose		:	
+	Parameters	:	@ parameter - Description
+**********************************************************************************************************************/
+#define FRAME_DATA_DIRECTORY(hDll, dwIndex) ((PIMAGE_DATA_DIRECTORY)&(FRAME_OPTIONAL_HEADER(hDll)->DataDirectory[dwIndex]))
 
