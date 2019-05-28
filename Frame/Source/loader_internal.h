@@ -1,9 +1,9 @@
 /**********************************************************************************************************************
 	File Name	:	loader_internal.h
-	Project		:	Globe
+	Project		:	Frame
 	Author		:	Cory Levy
 	Created		:	18/05/2019 @ 20:05
-	Description	:
+	Description	:	Private definitions of the loader module
 **********************************************************************************************************************/
 #pragma once
 
@@ -14,29 +14,36 @@
 
 /** Typedefs *********************************************************************************************************/
 
+/**********************************************************************************************************************
+	Type		:	PFNENTRYPOINT
+	Purpose		:	A function pointer type of DllMain.
+**********************************************************************************************************************/
 typedef BOOL(WINAPI *PFNENTRYPOINT)(HINSTANCE, DWORD, LPVOID);
 
 /** Macros ***********************************************************************************************************/
 
 /**********************************************************************************************************************
 	Macro		:	FRAME_RELOCATION_TYPE
-	Purpose		:	
-	Parameters	:	@ parameter - Description
+	Purpose		:	Return the relocation type.
+	Parameters	:	@word - The data to process.
 **********************************************************************************************************************/
 #define FRAME_RELOCATION_TYPE(word) ((word) >> 12) 
 
 /**********************************************************************************************************************
 	Macro		:	FRAME_RELOCATION_OFFSET
-	Purpose		:	
-	Parameters	:	@ parameter - Description
+	Purpose		:	Return the relocation offset.
+	Parameters	:	@word - The data to process.
 **********************************************************************************************************************/
 #define FRAME_RELOCATION_OFFSET(word) ((word) & 0x0fff) 
 
 /** Functions ********************************************************************************************************/
+
 /**********************************************************************************************************************
 	Function	:	loader_AllocateImageMemory
-	Parameters	:	@pvDll[in] -
-					@phDll[out] -
+	Purpose		:	Allocates memory for the loaded dll. If the preferred base address is not available, the memory 
+					will be allocated in a different address.
+	Parameters	:	@pvDll[in] - The dll to load.
+					@phDll[out] - The allocated memory.
 	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
 FRAMESTATUS
@@ -47,10 +54,10 @@ loader_AllocateImageMemory(
 
 /**********************************************************************************************************************
 	Function	:	loader_MapImageData
-	Parameters	:	@pvImage[in\out\opt] -
-					@hDll[in\out\opt] -
+	Purpose		:	Maps the relevant headers of the image.
+	Parameters	:	@pvImage[in] - The image whose headers will be mapped.
+					@hDll[in\out] - The allocated memory for that image.
 	Return		:	FRAMESTATUS
-	Remarks		:
 **********************************************************************************************************************/
 FRAMESTATUS
 loader_MapImageData(
@@ -60,10 +67,9 @@ loader_MapImageData(
 
 /**********************************************************************************************************************
 	Function	:	loader_GetSectionPermissions
-	Parameters	:	@pvImage[in\out\opt] -
-					@hDll[in\out\opt] -
-	Return		:	FRAMESTATUS
-	Remarks		:
+	Purpose		:	Interprets the IMAGE_SECTION_HEADER.Characteristics into a constant understood by VirtualAlloc.
+	Parameters	:	@dwSectionCharacteristics[int] - The section's characteristics.
+	Return		:	DWORD
 **********************************************************************************************************************/
 DWORD
 loader_GetSectionPermissions(
@@ -72,10 +78,9 @@ loader_GetSectionPermissions(
 
 /**********************************************************************************************************************
 	Function	:	loader_ProtectMemory
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Purpose		:	Sets the memory permissions of each mapped section of the library.
+	Parameters	:	@hDll[in\out] - The mapped library to protect it's section.
+	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
 FRAMESTATUS
 loader_ProtectMemory(
@@ -84,10 +89,9 @@ loader_ProtectMemory(
 
 /**********************************************************************************************************************
 	Function	:	loader_RelocateSymbols
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Purpose		:	Perform needed symbol relocation if a library was not loaded in its preferred address.
+	Parameters	:	@hDll[in\out] - The library to relocate.
+	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
 FRAMESTATUS
 loader_RelocateSymbols(
@@ -97,10 +101,9 @@ loader_RelocateSymbols(
 
 /**********************************************************************************************************************
 	Function	:	loader_RelocateSymbols
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Purpose		:	Load necessary external symbols for the library.
+	Parameters	:	@hDll[in\out] - The library to load libraries for.
+	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
 FRAMESTATUS
 loader_LoadExternalSymbols(
@@ -108,11 +111,9 @@ loader_LoadExternalSymbols(
 );
 
 /**********************************************************************************************************************
-	Function	:	
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Function	:	loader_FreeExternalLibraries
+	Purpose		:	Frees the libraries loaded by the library.
+	Parameters	:	@hDll[in] - The loaded library
 **********************************************************************************************************************/
 VOID
 loader_FreeExternalLibraries(
@@ -121,10 +122,8 @@ loader_FreeExternalLibraries(
 
 /**********************************************************************************************************************
 	Function	:	loader_CallEntryPoint
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Parameters	:	@hDll[in] - The loaded library to notify.
+					@dwReason[in] - The reason for calling the entrypoint.
 **********************************************************************************************************************/
 VOID
 loader_CallEntryPoint(

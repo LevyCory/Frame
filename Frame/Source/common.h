@@ -117,6 +117,11 @@
 		(unsigned)(dwCreateFlags),																					\
 		(unsigned*)(pdwThreadID)))
 
+/**********************************************************************************************************************
+	Macro		:	STRING_CCH
+	Purpose		:	Returns the length of a string in characters. Works both for normal strings and wide strings.
+	Parameters	:	@length[in] - The length of the string.
+**********************************************************************************************************************/
 #define STRING_CCH(length) ((length) * sizeof(TCHAR))
 
 /**********************************************************************************************************************
