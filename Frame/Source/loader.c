@@ -20,7 +20,7 @@ loader_GetSectionPermissions(
 )
 {
 	DWORD dwSimpleCharacteristics = (IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_EXECUTE) & dwSectionCharacteristics;
-	DWORD dwPermissions = -1;
+	DWORD dwPermissions = 0;
 
 	switch (dwSimpleCharacteristics)
 	{
@@ -347,7 +347,6 @@ loader_FreeExternalLibraries(
 	PIMAGE_IMPORT_DESCRIPTOR ptImportDescriptor = NULL;
 	PIMAGE_DATA_DIRECTORY ptDataDirectory = NULL;
 	HMODULE hLibrary = NULL;
-	DWORD dwIndex = 0;
 
 	ASSERT(NULL != hDll);
 

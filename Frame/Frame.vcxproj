@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="frame.h" />
+    <ClInclude Include="Source\frame.h" />
     <ClInclude Include="Source\frame_status.h" />
     <ClInclude Include="Source\common.h" />
     <ClInclude Include="Source\headers.h" />
@@ -27,6 +27,7 @@
     <ClInclude Include="Source\loader_internal.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\frame.c" />
     <ClCompile Include="Source\loader.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -108,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -125,11 +126,14 @@
     <BuildLog>
       <Path>$(SolutionDir)Bin\Int\$(PlatformShortName)\$(Configuration)\$(MSBuildProjectName).log</Path>
     </BuildLog>
+    <Lib>
+      <ExportNamedFunctions>FRAME_FreeLibrary;FRAME_LoadLibrary;%(ExportNamedFunctions)</ExportNamedFunctions>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,11 +150,14 @@
     <BuildLog>
       <Path>$(SolutionDir)Bin\Int\$(PlatformShortName)\$(Configuration)\$(MSBuildProjectName).log</Path>
     </BuildLog>
+    <Lib>
+      <ExportNamedFunctions>FRAME_FreeLibrary;FRAME_LoadLibrary;%(ExportNamedFunctions)</ExportNamedFunctions>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -171,11 +178,14 @@
     <BuildLog>
       <Path>$(SolutionDir)Bin\Int\$(PlatformShortName)\$(Configuration)\$(MSBuildProjectName).log</Path>
     </BuildLog>
+    <Lib>
+      <ExportNamedFunctions>FRAME_FreeLibrary;FRAME_LoadLibrary;%(ExportNamedFunctions)</ExportNamedFunctions>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -196,6 +206,9 @@
     <BuildLog>
       <Path>$(SolutionDir)Bin\Int\$(PlatformShortName)\$(Configuration)\$(MSBuildProjectName).log</Path>
     </BuildLog>
+    <Lib>
+      <ExportNamedFunctions>FRAME_FreeLibrary;FRAME_LoadLibrary;%(ExportNamedFunctions)</ExportNamedFunctions>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

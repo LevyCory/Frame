@@ -13,4 +13,9 @@
       <Filter>Tests</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Vendor\catch.h">
+      <Filter>Vendor</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

@@ -27,13 +27,16 @@
     <ClInclude Include="Source\loader_internal.h">
       <Filter>Loader</Filter>
     </ClInclude>
-    <ClInclude Include="frame.h">
+    <ClInclude Include="Source\frame.h">
       <Filter>Frame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\loader.c">
       <Filter>Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\frame.c">
+      <Filter>Frame</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@
 FRAMESTATUS
 LOADER_LoadLibrary(
 	__in PVOID pvImage,
-	__deref_out PVOID pvDll
+	__deref_out HMODULE *phDll
 );
 
 /**********************************************************************************************************************

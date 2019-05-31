@@ -1,41 +1,37 @@
 /**********************************************************************************************************************
-	File Name	:	frame.h
+	File Name	:	Frame.c
 	Project		:	Frame
-	Author		:	Cory Levy
-	Created		:	24/05/2019 @ 19:05
+	Author		:	coryl
+	Created		:	29/05/2019 @ 08:05
 	Description	:	
 **********************************************************************************************************************/
-#pragma once
-
 /** Headers **********************************************************************************************************/
 
-#include "frame_status.h"
-#include "loader.h"
+#include "frame.h"
 
 /** Functions ********************************************************************************************************/
 
 /**********************************************************************************************************************
-	Function	:	
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Function	:	FRAME_LoadLibrary
 **********************************************************************************************************************/
 FRAMESTATUS
 FRAME_LoadLibrary(
 	__in PVOID pvDll,
 	__in DWORD dwFlags,
-	__deref_out HMODULE *phDlll
-);
+	__deref_out HMODULE *phDll
+)
+{
+	UNREFERENCED_PARAMETER(dwFlags);
+	return LOADER_LoadLibrary(pvDll, phDll);
+}
 
 /**********************************************************************************************************************
-	Function	:	
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Function	:	FRAME_FreeLibrary
 **********************************************************************************************************************/
 VOID
 FRAME_FreeLibrary(
 	HMODULE hDll
-);
+)
+{
+	LOADER_FreeLibrary(hDll);
+}
