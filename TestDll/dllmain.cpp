@@ -1,5 +1,10 @@
 #include <windows.h>
 
+extern "C"
+{
+	#include "message_box.h"
+}
+
 BOOL
 WINAPI 
 DllMain( 
@@ -11,10 +16,10 @@ DllMain(
     switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
-		MessageBoxW(NULL, L"DllMain Attach Called!", L"TestDll", 0);
+		MB_DisplayMessage((PTSTR)"DllMain Attach Called!");
 		break;
     case DLL_PROCESS_DETACH:
-		MessageBoxW(NULL, L"DllMain Attach Called!", L"TestDll", 0);
+		MB_DisplayMessage((PTSTR)"DllMain Detach Called!");
         break;
     }
     return TRUE;

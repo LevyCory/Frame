@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\TestDll\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Bin\TestDll\Int\$(PlatformShortName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\TestDll\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Bin\TestDll\Int\$(PlatformShortName)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -160,6 +160,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="message_box.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="message_box.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

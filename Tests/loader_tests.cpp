@@ -2,6 +2,7 @@
 #include <Catch2/catch.h>
 
 #include "testing_common.h"
+#include "headers.h"
 
 extern "C"
 {
@@ -35,9 +36,28 @@ TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
 	HMODULE hDll = NULL;
 	Buffer buffered_dll = read_file(dll_test_file);
 
-	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+	SECTION("Sanity")
+	{
+		eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+		REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+		FRAME_FreeLibrary(hDll);
+	}
 
-	FRAME_FreeLibrary(hDll);
+	SECTION("Relocation")
+	{
+		PVOID pvPlaceHolder = VirtualAlloc(
+			(PVOID)FRAME_OPTIONAL_HEADER(buffered_dll.data())->ImageBase, 
+			1, 
+			MEM_RESERVE, 
+			PAGE_READONLY);
+		REQUIRE(NULL != pvPlaceHolder);
+
+		eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+		REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+		FRAME_FreeLibrary(hDll);
+
+		VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
+	}
 }
+
 

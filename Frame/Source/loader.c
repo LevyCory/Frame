@@ -232,7 +232,6 @@ loader_LoadExternalSymbols(
 	PIMAGE_IMPORT_BY_NAME ptData = NULL;
 	PIMAGE_THUNK_DATA ptName = NULL;
 	PIMAGE_THUNK_DATA ptSymbol = NULL;
-	LPSTR pszProcReference = NULL;
 	HMODULE hLibrary = NULL;
 	DWORD dwLibraryCounter = 0;
 
@@ -263,8 +262,9 @@ loader_LoadExternalSymbols(
 
 		for	(; 0 != ptName->u1.Function; ptName++, ptSymbol++)
 		{
-			pszProcReference = (LPSTR)ADD_POINTERS(FRAME_PROC_REFERENCE(ptName), 2);
-			ptSymbol->u1.Function = (SIZE_T)GetProcAddress(hLibrary, pszProcReference);
+			// Import symbols from the loaded library
+			ptData = (PIMAGE_IMPORT_BY_NAME)ADD_POINTERS(hDll, ptName->u1.AddressOfData);
+			ptSymbol->u1.Function = (SIZE_T)GetProcAddress(hLibrary, (LPCSTR)ptData->Name);
 			if (0 == ptSymbol->u1.Function)
 			{
 				eStatus = FRAMESTATUS_LOADER_LOADEXTERNALSYMBOLS_GETPROCADDRESS_FAILED;
@@ -384,10 +384,16 @@ loader_CallEntryPoint(
 	__in DWORD dwReason
 )
 {
-	PFNENTRYPOINT pfnEntryPoint = (PFNENTRYPOINT)(DWORD_PTR)ADD_POINTERS(hDll,
-		FRAME_OPTIONAL_HEADER(hDll)->AddressOfEntryPoint);
+	PFNENTRYPOINT pfnEntryPoint = NULL;
+	PIMAGE_OPTIONAL_HEADER ptHeader = FRAME_OPTIONAL_HEADER(hDll);
 
-	(VOID)pfnEntryPoint((HINSTANCE)hDll, dwReason, 0);
+	ASSERT(NULL != hDll);
+
+	if (0 != ptHeader->AddressOfEntryPoint)
+	{
+		pfnEntryPoint = (PFNENTRYPOINT)(DWORD_PTR)ADD_POINTERS(hDll, ptHeader->AddressOfEntryPoint);
+		(VOID)pfnEntryPoint((HINSTANCE)hDll, dwReason, 0);
+	}
 }
 
 /**********************************************************************************************************************
