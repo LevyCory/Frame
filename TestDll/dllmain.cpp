@@ -1,15 +1,14 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
 #include <windows.h>
 
 BOOL
 WINAPI 
 DllMain( 
 	HMODULE hModule,
-    DWORD  ul_reason_for_call,
+    DWORD  dwReason,
 	LPVOID lpReserved
 )
 {
-    switch (ul_reason_for_call)
+    switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
 		MessageBoxW(NULL, L"DllMain Attach Called!", L"TestDll", 0);

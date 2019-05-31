@@ -1,11 +1,23 @@
 #define CATCH_CONFIG_MAIN
+#include <Catch2/catch.h>
 
-#include <catch.h>
-//#include <frame_status.h>
+#include "testing_common.h"
+
+extern "C"
+{
+#include "frame_status.h"
+#include "loader.h"
 #include "frame.h"
+}
 
-/*
-TEST_CASE("Test LOADER_LoadLibrary invalid args", "[loader]")
+#ifdef _WIN64
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+#else
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+#endif
+
+
+TEST_CASE("Test LOADER_LoadLibrary invalid args", "[loader][loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0,NULL);
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
@@ -15,10 +27,17 @@ TEST_CASE("Test LOADER_LoadLibrary invalid args", "[loader]")
 
 	eStatus = FRAME_LoadLibrary(NULL, 0, (HMODULE*)0x10101010);
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
-}*/
+}
 
-int main(int argc, char* argv[])
+TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
 {
-	return static_cast<int>(FRAME_LoadLibrary(nullptr, 0,nullptr));
+	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	HMODULE hDll = NULL;
+	Buffer buffered_dll = read_file(dll_test_file);
+
+	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+
+	FRAME_FreeLibrary(hDll);
 }
 

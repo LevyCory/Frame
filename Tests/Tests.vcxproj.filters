@@ -12,10 +12,16 @@
     <ClCompile Include="loader_tests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="testing_common.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Vendor\catch.h">
       <Filter>Vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="testing_common.h">
+      <Filter>Tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

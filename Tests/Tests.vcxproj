@@ -25,9 +25,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loader_tests.cpp" />
+    <ClCompile Include="testing_common.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Vendor\catch.h" />
+    <ClInclude Include="testing_common.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

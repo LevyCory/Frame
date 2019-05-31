@@ -13,11 +13,18 @@
 
 /** Macros ***********************************************************************************************************/
 /**********************************************************************************************************************
+	Macro		:	FRAME_DOS_HEADER
+	Purpose		:	
+	Parameters	:	@ parameter - Description
+**********************************************************************************************************************/
+#define FRAME_DOS_HEADER(pvMemory) ((PIMAGE_DOS_HEADER)pvMemory)
+
+/**********************************************************************************************************************
 	Macro		:	FRAME_PE_HEADER
 	Purpose		:	Return a pointer to the NT headers of the PE file.
 	Parameters	:	@pvMemory[in] - The in-memory PE file
 **********************************************************************************************************************/
-#define FRAME_NT_HEADER(pvMemory) ((PIMAGE_NT_HEADERS)(pvMemory))
+#define FRAME_NT_HEADER(pvMemory) ((PIMAGE_NT_HEADERS)ADD_POINTERS(pvMemory, FRAME_DOS_HEADER(pvMemory)->e_lfanew))
 
 /**********************************************************************************************************************
 	Macro		:	FRAME_FILE_HEADER
@@ -38,7 +45,7 @@
 	Purpose		:	Return a pointer to the first section header of the PE file.
 	Parameters	:	@pvMemory[in] - The in-memory PE file
 **********************************************************************************************************************/
-#define FRAME_SECTION_HEADER(pvMemory) ((PIMAGE_SECTION_HEADER)ADD_POINTERS(pvMemory, 0x138))
+#define FRAME_SECTION_HEADER(pvMemory) ((PIMAGE_SECTION_HEADER)ADD_POINTERS(FRAME_OPTIONAL_HEADER(pvMemory), sizeof(IMAGE_OPTIONAL_HEADER)))
 
 /**********************************************************************************************************************
 	Macro		:	FRAME_DATA_DIRECTORY

@@ -78,7 +78,7 @@ loader_AllocateImageMemory(
 	hDll = VirtualAlloc((PVOID)ptHeader->ImageBase, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
 	if (NULL == hDll)
 	{
-		hDll = VirtualAlloc(NULL, 1, MEM_RESERVE, PAGE_READWRITE);
+		hDll = VirtualAlloc(NULL, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
 		if (NULL == hDll)
 		{
 			eStatus = FRAMESTATUS_LOADER_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED;
@@ -169,8 +169,8 @@ loader_MapImageData(
 	PIMAGE_SECTION_HEADER ptSection = FRAME_SECTION_HEADER(pvImage);
 	PIMAGE_OPTIONAL_HEADER ptOptionalHeader = FRAME_OPTIONAL_HEADER(pvImage);
 	PIMAGE_FILE_HEADER ptFileHeader = FRAME_FILE_HEADER(pvImage);
-	PVOID pvImageBase = (PVOID)FRAME_OPTIONAL_HEADER(pvImage)->ImageBase;
 	PVOID pvSectionVirtualAddress = NULL;
+	DWORD cbSectionSize = 0;
 	DWORD i = 0;
 
 	ASSERT(NULL != pvImage);
@@ -186,25 +186,30 @@ loader_MapImageData(
 	// Map the PE headers
 	CopyMemory(hDll, pvImage, ptOptionalHeader->SizeOfHeaders);
 
-	for (i = 0; i < ptFileHeader->NumberOfSections; ptSection++)
+	for (i = 0; i < ptFileHeader->NumberOfSections; ptSection++, i++)
 	{
-		pvSectionVirtualAddress = ADD_POINTERS(pvImageBase, ptSection->VirtualAddress);
+		pvSectionVirtualAddress = ADD_POINTERS(hDll, ptSection->VirtualAddress);
 
-		if(!VirtualAlloc(
-			pvSectionVirtualAddress,
-			ptSection->SizeOfRawData,
-			MEM_COMMIT,
-			PAGE_READWRITE))
+		if (0 == ptSection->SizeOfRawData)
+		{
+			cbSectionSize = ptSection->Misc.VirtualSize;
+		}
+
+		else
+		{
+			cbSectionSize = ptSection->SizeOfRawData;
+		}
+
+		if(NULL == VirtualAlloc(pvSectionVirtualAddress, cbSectionSize, MEM_COMMIT, PAGE_READWRITE))
 		{
 			eStatus = FRAMESTATUS_LOADER_MAPIMAGEDATA_SECTION_VIRTUALALLOC_FAILED;
 			goto lblCleanup;
 		}
 
-		CopyMemory(
-			pvSectionVirtualAddress, 
-			ADD_POINTERS(pvImage, ptSection->PointerToRawData),
-			min(ptSection->SizeOfRawData, ptSection->Misc.VirtualSize)
-			);
+		if (0 != ptSection->SizeOfRawData)
+		{
+			CopyMemory(pvSectionVirtualAddress, ADD_POINTERS(pvImage, ptSection->PointerToRawData), cbSectionSize);
+		}
 	}
 
 	eStatus = FRAMESTATUS_SUCCESS;
@@ -227,6 +232,7 @@ loader_LoadExternalSymbols(
 	PIMAGE_IMPORT_BY_NAME ptData = NULL;
 	PIMAGE_THUNK_DATA ptName = NULL;
 	PIMAGE_THUNK_DATA ptSymbol = NULL;
+	LPSTR pszProcReference = NULL;
 	HMODULE hLibrary = NULL;
 	DWORD dwLibraryCounter = 0;
 
@@ -257,7 +263,8 @@ loader_LoadExternalSymbols(
 
 		for	(; 0 != ptName->u1.Function; ptName++, ptSymbol++)
 		{
-			ptSymbol->u1.Function = (SIZE_T)GetProcAddress(hLibrary, (LPCSTR)ptName->u1.Ordinal);
+			pszProcReference = (LPSTR)ADD_POINTERS(FRAME_PROC_REFERENCE(ptName), 2);
+			ptSymbol->u1.Function = (SIZE_T)GetProcAddress(hLibrary, pszProcReference);
 			if (0 == ptSymbol->u1.Function)
 			{
 				eStatus = FRAMESTATUS_LOADER_LOADEXTERNALSYMBOLS_GETPROCADDRESS_FAILED;
