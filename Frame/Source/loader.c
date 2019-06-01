@@ -118,6 +118,9 @@ loader_ProtectMemory(
 
 	ASSERT(NULL != hDll);
 
+	ptSection = FRAME_SECTION_HEADER(hDll);
+	dwSectionCount = FRAME_FILE_HEADER(hDll)->NumberOfSections;
+
 	for (dwSectionCounter = 0; dwSectionCounter < dwSectionCount; dwSectionCounter++, ptSection++)
 	{
 		if (0 < ptSection->SizeOfRawData)

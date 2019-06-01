@@ -12,9 +12,9 @@ extern "C"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
 
@@ -28,6 +28,17 @@ TEST_CASE("Test LOADER_LoadLibrary invalid args", "[loader][loadlibrary]")
 
 	eStatus = FRAME_LoadLibrary(NULL, 0, (HMODULE*)0x10101010);
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
+}
+
+TEST_CASE("TEST")
+{
+	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	HMODULE hDll = NULL;
+	Buffer buffered_dll = read_file(dll_test_file);
+	
+	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+	FRAME_FreeLibrary(hDll);
 }
 
 TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
