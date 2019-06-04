@@ -312,9 +312,10 @@ loader_RelocateSymbols(
 	ptRelocationData = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_BASERELOC);
 	ptRelocationBlock = (PIMAGE_BASE_RELOCATION)ADD_POINTERS(hDll, ptRelocationData->VirtualAddress);
 
-	for (cbBytesRead = 0; cbBytesRead < ptRelocationData->Size; cbBytesRead += ptRelocationBlock->SizeOfBlock)
+	for (cbBytesRead = 0; cbBytesRead < ptRelocationData->Size; cbBytesRead += ptRelocationBlock->SizeOfBlock,
+		ptRelocationBlock = (PIMAGE_BASE_RELOCATION)pwRelocationEntry)
 	{
-		pvPageRVA = ADD_POINTERS(hDll, ptRelocationData->VirtualAddress);
+		pvPageRVA = ADD_POINTERS(hDll, ptRelocationBlock->VirtualAddress);
 		dwRelocationCount = (ptRelocationBlock->SizeOfBlock - sizeof(*ptRelocationBlock)) / sizeof(WORD);
 		pwRelocationEntry = (PWORD)ADD_POINTERS(ptRelocationBlock, sizeof(*ptRelocationBlock));
 
@@ -335,6 +336,7 @@ loader_RelocateSymbols(
 				continue;
 
 			default:
+				eStatus = FRAMESTATUS_LOADER_RELOCATESYMBOLS_INVALID_RELOCATION_TYPE;
 				goto lblCleanup;
 			}	
 		}
