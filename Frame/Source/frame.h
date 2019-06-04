@@ -15,11 +15,11 @@
 /** Functions ********************************************************************************************************/
 
 /**********************************************************************************************************************
-	Function	:	
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Function	:	Loads a library from memory.
+	Parameters	:	@pvDll[in] - The buffered dll.
+					@dwFlags[in] - Reserved.
+					@phDll[out] - The loaded library.
+	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
 FRAMESTATUS
 FRAME_LoadLibrary(
@@ -29,11 +29,8 @@ FRAME_LoadLibrary(
 );
 
 /**********************************************************************************************************************
-	Function	:	
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Function	:	FRAME_FreeLibrary
+	Parameters	:	@hDll[in] - A library loaded with FRAME_LoadLibrary.
 **********************************************************************************************************************/
 VOID
 FRAME_FreeLibrary(

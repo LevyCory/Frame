@@ -383,12 +383,13 @@ loader_FreeExternalLibraries(
 /**********************************************************************************************************************
 	Function	:	loader_CallEntryPoint
 **********************************************************************************************************************/
-VOID
+FRAMESTATUS
 loader_CallEntryPoint(
 	__in_req HMODULE hDll,
 	__in DWORD dwReason
 )
 {
+	FRAMESTATUS eStatus = FRAMESTATUS_SUCCESS;
 	PFNENTRYPOINT pfnEntryPoint = NULL;
 	PIMAGE_OPTIONAL_HEADER ptHeader = FRAME_OPTIONAL_HEADER(hDll);
 
@@ -397,8 +398,13 @@ loader_CallEntryPoint(
 	if (0 != ptHeader->AddressOfEntryPoint)
 	{
 		pfnEntryPoint = (PFNENTRYPOINT)(DWORD_PTR)ADD_POINTERS(hDll, ptHeader->AddressOfEntryPoint);
-		(VOID)pfnEntryPoint((HINSTANCE)hDll, dwReason, 0);
+		if(!pfnEntryPoint((HINSTANCE)hDll, dwReason, 0))
+		{
+			eStatus = FRAMESTATUS_LOADER_CALLENTRYPOINT_ENTRYPOINT_FAILED;
+		}
 	}
+
+	return eStatus;
 }
 
 /**********************************************************************************************************************
@@ -455,7 +461,12 @@ LOADER_LoadLibrary(
 		goto lblCleanup;	
 	}
 
-	loader_CallEntryPoint(hDll, DLL_PROCESS_ATTACH);
+	eStatus = loader_CallEntryPoint(hDll, DLL_PROCESS_ATTACH);
+	if (FRAME_FAILED(eStatus))
+	{
+		LOADER_FreeLibrary(hDll);
+		goto lblCleanup;	
+	}
 
 	*phDll = hDll;
 	hDll = NULL;

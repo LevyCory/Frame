@@ -122,10 +122,12 @@ loader_FreeExternalLibraries(
 
 /**********************************************************************************************************************
 	Function	:	loader_CallEntryPoint
+	Purpose		:	Calls the library's DllMain function.
 	Parameters	:	@hDll[in] - The loaded library to notify.
 					@dwReason[in] - The reason for calling the entrypoint.
+	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
-VOID
+FRAMESTATUS
 loader_CallEntryPoint(
 	__in_req HMODULE hDll,
 	__in DWORD dwReason

@@ -18,7 +18,7 @@ const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x86\\Tes
 #endif
 
 
-TEST_CASE("Test LOADER_LoadLibrary invalid args", "[loader][loadlibrary]")
+TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loader][loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0,NULL);
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
@@ -30,45 +30,28 @@ TEST_CASE("Test LOADER_LoadLibrary invalid args", "[loader][loadlibrary]")
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 }
 
-TEST_CASE("TEST")
-{
-	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
-	HMODULE hDll = NULL;
-	Buffer buffered_dll = read_file(dll_test_file);
-	
-	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
-	FRAME_FreeLibrary(hDll);
-}
-
 TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
 	HMODULE hDll = NULL;
 	Buffer buffered_dll = read_file(dll_test_file);
 
-	SECTION("Sanity")
-	{
-		eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-		REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
-		FRAME_FreeLibrary(hDll);
-	}
+	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
 
-	SECTION("Relocation")
-	{
-		PVOID pvPlaceHolder = VirtualAlloc(
-			(PVOID)FRAME_OPTIONAL_HEADER(buffered_dll.data())->ImageBase, 
-			1, 
-			MEM_RESERVE, 
-			PAGE_READONLY);
-		REQUIRE(NULL != pvPlaceHolder);
+	PVOID pvPlaceHolder = VirtualAlloc(
+		(PVOID)FRAME_OPTIONAL_HEADER(buffered_dll.data())->ImageBase, 
+		1, 
+		MEM_RESERVE, 
+		PAGE_READONLY);
+	REQUIRE(NULL != pvPlaceHolder);
 
-		eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-		REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
-		FRAME_FreeLibrary(hDll);
+	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
 
-		VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
-	}
+	VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
 }
 
 
