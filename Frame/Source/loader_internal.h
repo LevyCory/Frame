@@ -12,6 +12,14 @@
 #include "loader.h"
 #include "headers.h"
 
+/** Constants*********************************************************************************************************/
+
+/**********************************************************************************************************************
+	Constant	:	MAX_PROC_NAME_SIZE
+	Purpose		:	Define the max length of a proc name exported by a dll.
+**********************************************************************************************************************/
+#define MAX_PROC_NAME_SIZE (256)
+
 /** Typedefs *********************************************************************************************************/
 
 /**********************************************************************************************************************
@@ -131,4 +139,33 @@ FRAMESTATUS
 loader_CallEntryPoint(
 	__in_req HMODULE hDll,
 	__in DWORD dwReason
+);
+
+/**********************************************************************************************************************
+	Function	:	loader_GetOrdinalFromName
+	Purpose		:	Return the ordinal corresponding to the proc name.
+	Parameters	:	@hDll[in] - The library loaded by Frame.
+					@pszName[in] - An ASCII string representing the proc name.
+					@pwOrdinal[out] - The proc ordinal.
+	Return		:	FRAMESTATUS
+**********************************************************************************************************************/
+FRAMESTATUS
+loader_GetOrdinalFromName(
+	__in_req HMODULE hDll,
+	__in_req PCSTR pszName,
+	__out PWORD pwOrdinal
+);
+
+/**********************************************************************************************************************
+	Function	:	
+	Parameters	:	@param[in\out\opt] -
+					@param[in\out\opt] -
+	Return		:
+	Remarks		:
+**********************************************************************************************************************/
+FRAMESTATUS
+loader_GetProcByOrdinal(
+	__in_req HMODULE hDll,
+	__in WORD ordinal,
+	__out FARPROC *pfnProc
 );

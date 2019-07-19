@@ -381,6 +381,51 @@ loader_FreeExternalLibraries(
 }
 
 /**********************************************************************************************************************
+	Function	:	loader_GetOrdinalFromName
+**********************************************************************************************************************/
+FRAMESTATUS
+loader_GetOrdinalFromName(
+	__in_req HMODULE hDll,
+	__in_req PCSTR pszName,
+	__out PWORD pwOrdinal
+)
+{
+	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	PSTR pszExportName = NULL;
+	PDWORD pdwNamePointer = NULL;
+	PWORD pwExportsOrdinalTable = NULL;
+	DWORD dwNameIndex = 0;
+	PIMAGE_EXPORT_DIRECTORY ptExportDirectory = NULL;
+
+	NOTNULL(hDll);
+	NOTNULL(pszName);
+
+	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
+
+	pdwNamePointer = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNames);
+	for (dwNameIndex = 0; dwNameIndex < ptExportDirectory->NumberOfFunctions; dwNameIndex++)
+	{
+		pszExportName = ADD_POINTERS(hDll, *pdwNamePointer);
+		if (0 == strncmp(pszName, pszExportName, MAX_PROC_NAME_SIZE))
+		{
+			break;
+		}
+	}
+
+	if (dwNameIndex >= ptExportDirectory->NumberOfFunctions)
+	{
+		eStatus = FRAMESTATUS_LOADERGETORDINALFROMNAME_NAME_NOT_FOUND;
+		goto lblCleanup;
+	}
+
+	pwExportsOrdinalTable = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNameOrdinals);
+	*pwOrdinal = pwExportsOrdinalTable[dwNameIndex] + ptExportDirectory->Base;
+
+lblCleanup:
+	return eStatus;
+}
+
+/**********************************************************************************************************************
 	Function	:	loader_CallEntryPoint
 **********************************************************************************************************************/
 FRAMESTATUS
