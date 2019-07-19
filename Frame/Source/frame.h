@@ -36,3 +36,19 @@ VOID
 FRAME_FreeLibrary(
 	HMODULE hDll
 );
+
+/**********************************************************************************************************************
+	Function	:	FRAME_GetProcAddress
+	Purpose		:	Load symbols exported by the dll library loaded by Frame.
+	Parameters	:	@hDll[in] - The loaded library handle.
+					@pszProcName[in] - An ascii string representing the name of the function or its ordinal.
+					@pfnProc[out] - The loaded symbol.
+	Return		:	FRAMESTATUS
+**********************************************************************************************************************/
+FRAMESTATUS
+FRAME_GetProcAddress(
+	__in_req HMODULE hDll,
+	__in_req LPCSTR pszProcName,
+	__out FARPROC pfnProc
+);
+
