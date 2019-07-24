@@ -240,7 +240,7 @@ loader_LoadExternalSymbols(
 
 	ASSERT(NULL != hDll);
 
-	ptImports = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_IMPORT);
+	ptImports = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_IMPORT);
 
 	if (0 == ptImports->Size)
 	{
@@ -309,7 +309,7 @@ loader_RelocateSymbols(
 		goto lblCleanup;
 	}
 
-	ptRelocationData = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_BASERELOC);
+	ptRelocationData = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_BASERELOC);
 	ptRelocationBlock = (PIMAGE_BASE_RELOCATION)ADD_POINTERS(hDll, ptRelocationData->VirtualAddress);
 
 	for (cbBytesRead = 0; cbBytesRead < ptRelocationData->Size; cbBytesRead += ptRelocationBlock->SizeOfBlock,
@@ -362,7 +362,7 @@ loader_FreeExternalLibraries(
 
 	ASSERT(NULL != hDll);
 
-	ptDataDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_IMPORT);
+	ptDataDirectory = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_IMPORT);
 
 	if (NULL != ptDataDirectory)
 	{
@@ -400,7 +400,7 @@ loader_GetOrdinalFromName(
 	NOTNULL(hDll);
 	NOTNULL(pszName);
 
-	ptExportDirectory = ADD_POINTERS(hDll, FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT)->VirtualAddress);
+	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
 
 	pdwNamePointer = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNames);
 	for (dwNameIndex = 0; dwNameIndex < ptExportDirectory->NumberOfFunctions; dwNameIndex++)
@@ -444,7 +444,7 @@ loader_GetProcByOrdinal(
 
 	NOTNULL(hDll);
 
-	ptExportDirectory = ADD_POINTERS(hDll, FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT)->VirtualAddress);
+	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
 	nRealOrdinal = wOrdinal - ptExportDirectory->Base;
 
 	if ((0 != ptExportDirectory->NumberOfFunctions) &&
@@ -602,7 +602,7 @@ LOADER_GetProcAddress(
 
 	else
 	{
-		wOrdinal = 0x0000ffff & (SIZE_T)pszProcName;
+		wOrdinal = GET_INT_RESOURCE(pszProcName);
 	}
 
 	*pfnProc = loader_GetProcByOrdinal(hDll, wOrdinal);

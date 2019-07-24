@@ -19,7 +19,6 @@ const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\Tes
 
 typedef VOID(*PFN_DISPLAY_MESSAGE)(PCSTR);
 
-/*
 TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loader][loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0,NULL);
@@ -55,7 +54,6 @@ TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
 
 	VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
 }
-*/
 
 TEST_CASE("Test the GetProcAddress function")
 {

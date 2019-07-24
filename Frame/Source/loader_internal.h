@@ -44,6 +44,12 @@ typedef BOOL(WINAPI *PFNENTRYPOINT)(HINSTANCE, DWORD, LPVOID);
 **********************************************************************************************************************/
 #define FRAME_RELOCATION_OFFSET(word) ((word) & 0x0fff) 
 
+/**********************************************************************************************************************
+	Macro		:	GET_INT_RESOURCE
+	Purpose		:	Extracts the lower word of the parameter. 	
+**********************************************************************************************************************/
+#define GET_INT_RESOURCE(resource) ((0x0000ffff) & (SIZE_T)(resource))
+
 /** Functions ********************************************************************************************************/
 
 /**********************************************************************************************************************
@@ -157,11 +163,10 @@ loader_GetOrdinalFromName(
 );
 
 /**********************************************************************************************************************
-	Function	:	
-	Parameters	:	@param[in\out\opt] -
-					@param[in\out\opt] -
-	Return		:
-	Remarks		:
+	Function	:	Loads a function by its index on the export table.
+	Parameters	:	@hDll[in] - The loaded dll.
+					@wOrdinal[in] - The function's index in the export table.
+	Return		:	FRAMESTATUS
 **********************************************************************************************************************/
 FARPROC
 loader_GetProcByOrdinal(

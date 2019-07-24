@@ -15,7 +15,7 @@
 /** Macros ***********************************************************************************************************/
 /**********************************************************************************************************************
 	Macro		:	FRAME_DOS_HEADER
-	Purpose		:	
+	Purpose		:	Converts a memory address to the DOS header pointer.
 	Parameters	:	@ parameter - Description
 **********************************************************************************************************************/
 #define FRAME_DOS_HEADER(pvMemory) ((PIMAGE_DOS_HEADER)pvMemory)
@@ -49,10 +49,18 @@
 #define FRAME_SECTION_HEADER(pvMemory) ((PIMAGE_SECTION_HEADER)ADD_POINTERS(FRAME_OPTIONAL_HEADER(pvMemory), sizeof(IMAGE_OPTIONAL_HEADER)))
 
 /**********************************************************************************************************************
-	Macro		:	FRAME_DATA_DIRECTORY
+	Macro		:	FRAME_DATA_DIRECTORY_ENTRY
 	Purpose		:	Return a pointer to a data directory entry of the PE file.
 	Parameters	:	@hDll[in] - The in-memory PE file
 					@dwIndex[in] - The index of the needed directory.
 **********************************************************************************************************************/
-#define FRAME_DATA_DIRECTORY(hDll, dwIndex) ((PIMAGE_DATA_DIRECTORY)&(FRAME_OPTIONAL_HEADER(hDll)->DataDirectory[dwIndex]))
+#define FRAME_DATA_DIRECTORY_ENTRY(hDll, dwIndex) ((PIMAGE_DATA_DIRECTORY)&(FRAME_OPTIONAL_HEADER(hDll)->DataDirectory[dwIndex]))
+
+/**********************************************************************************************************************
+	Macro		:	FRAME_DATA_DIRECTORY
+	Purpose		:	
+	Parameters	:	@ parameter - Description
+**********************************************************************************************************************/
+#define FRAME_DATA_DIRECTORY(hDll, dwIndex) ADD_POINTERS(hDll, FRAME_DATA_DIRECTORY_ENTRY(hDll, dwIndex)->VirtualAddress); 
+
 
