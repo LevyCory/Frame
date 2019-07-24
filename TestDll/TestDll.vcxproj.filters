@@ -10,16 +10,16 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="message_box.c">
+    <ClCompile Include="signal_event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="message_box.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
+    <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="exports.def" />
+    <ClInclude Include="signal_event.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,9 +1,8 @@
+#include <string>
+
 #include <windows.h>
 
-extern "C"
-{
-	#include "message_box.h"
-}
+#include "signal_event.hpp"
 
 BOOL
 WINAPI 
@@ -13,13 +12,19 @@ DllMain(
 	LPVOID lpReserved
 )
 {
+	UNREFERENCED_PARAMETER(hModule);
+	UNREFERENCED_PARAMETER(lpReserved);
+
+	const std::string name = "TestEvent";
+
     switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
-		MB_DisplayMessage((PSTR)"DllMain Attach Called!");
+		SignalEvent(name.c_str());
 		break;
+
     case DLL_PROCESS_DETACH:
-		MB_DisplayMessage((PSTR)"DllMain Detach Called!");
+		SignalEvent(name.c_str());
         break;
     }
     return TRUE;

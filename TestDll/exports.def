@@ -1,2 +1,2 @@
 EXPORTS
-	MB_DisplayMessage @1
+	SignalEvent @1

@@ -164,13 +164,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="message_box.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="message_box.h" />
+    <ClCompile Include="signal_event.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="signal_event.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,13 +7,19 @@
     <Filter Include="Tests">
       <UniqueIdentifier>{4a7523a1-6952-4570-a075-93486e99fb33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{1d8824da-9dc6-4a4f-b8fd-7b80772882d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loader_tests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="testing_common.cpp">
-      <Filter>Tests</Filter>
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="event.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -21,7 +27,10 @@
       <Filter>Vendor</Filter>
     </ClInclude>
     <ClInclude Include="testing_common.h">
-      <Filter>Tests</Filter>
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="event.hpp">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

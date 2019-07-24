@@ -3,6 +3,7 @@
 
 #include "testing_common.h"
 #include "headers.h"
+#include "event.hpp"
 
 extern "C"
 {
@@ -17,9 +18,13 @@ const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\Tes
 const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
+const std::string event_name = "TestEvent";
+Buffer buffered_dll = read_file(dll_test_file);
+Event test_event(event_name, true, true);
+
 typedef VOID(*PFN_DISPLAY_MESSAGE)(PCSTR);
 
-TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loader][loadlibrary]")
+TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0,NULL);
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
@@ -31,45 +36,65 @@ TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loader][loadlibrary]")
 	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 }
 
-TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
+TEST_CASE("Test normal library loading", "[loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
 	HMODULE hDll = NULL;
-	Buffer buffered_dll = read_file(dll_test_file);
 
-	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+
+	SECTION("Sanity")
+	{
+		eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+		REQUIRE(FRAME_SUCCESS(eStatus));
+		REQUIRE(test_event.is_set());
+	}
+
+	SECTION("Relocation")
+	{
+		PVOID pvPlaceHolder = VirtualAlloc(
+			(PVOID)FRAME_OPTIONAL_HEADER(buffered_dll.data())->ImageBase, 
+			1, 
+			MEM_RESERVE, 
+			PAGE_READONLY);
+			REQUIRE(NULL != pvPlaceHolder);
+
+		eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+		REQUIRE(FRAME_SUCCESS(eStatus));
+		REQUIRE(test_event.is_set());
+
+		VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
+	}
+
 	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
-
-	PVOID pvPlaceHolder = VirtualAlloc(
-		(PVOID)FRAME_OPTIONAL_HEADER(buffered_dll.data())->ImageBase, 
-		1, 
-		MEM_RESERVE, 
-		PAGE_READONLY);
-	REQUIRE(NULL != pvPlaceHolder);
-
-	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
-	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
-
-	VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
 }
 
-TEST_CASE("Test the GetProcAddress function")
+TEST_CASE("Test the GetProcAddress function", "[GetProcAddress]")
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
 	HMODULE hDll = NULL;
 	PFN_DISPLAY_MESSAGE proc = NULL;
-	Buffer buffered_dll = read_file(dll_test_file);
 
 	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
-	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+	REQUIRE(FRAME_SUCCESS(eStatus));
 
-	eStatus = FRAME_GetProcAddress(hDll, "MB_DisplayMessage", (FARPROC*)&proc);
-	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+	SECTION("Get proc by name")
+	{
+		eStatus = FRAME_GetProcAddress(hDll, "SignalEvent", (FARPROC*)&proc);
+		REQUIRE(FRAME_SUCCESS(eStatus));
 
-	proc("Test");
+		proc(event_name.c_str());
+		REQUIRE(test_event.is_set());
+	}
 
-	FRAME_FreeLibrary(hDll);
+	SECTION("Get proc by ordinal")
+	{
+		eStatus = FRAME_GetProcAddress(hDll, (LPCSTR)1, (FARPROC*)&proc);
+		REQUIRE(FRAME_SUCCESS(eStatus));
+
+		proc(event_name.c_str());
+		REQUIRE(test_event.is_set());
+	}
+
+	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
 }
 

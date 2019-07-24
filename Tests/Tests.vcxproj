@@ -24,11 +24,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="event.cpp" />
     <ClCompile Include="loader_tests.cpp" />
     <ClCompile Include="testing_common.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Vendor\catch.h" />
+    <ClInclude Include="event.hpp" />
     <ClInclude Include="testing_common.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
