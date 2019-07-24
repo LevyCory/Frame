@@ -400,7 +400,7 @@ loader_GetOrdinalFromName(
 	NOTNULL(hDll);
 	NOTNULL(pszName);
 
-	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
+	ptExportDirectory = ADD_POINTERS(hDll, FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT)->VirtualAddress);
 
 	pdwNamePointer = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNames);
 	for (dwNameIndex = 0; dwNameIndex < ptExportDirectory->NumberOfFunctions; dwNameIndex++)
@@ -420,6 +420,8 @@ loader_GetOrdinalFromName(
 
 	pwExportsOrdinalTable = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNameOrdinals);
 	*pwOrdinal = pwExportsOrdinalTable[dwNameIndex] + ptExportDirectory->Base;
+
+	eStatus = FRAMESTATUS_SUCCESS;
 
 lblCleanup:
 	return eStatus;
@@ -442,7 +444,7 @@ loader_GetProcByOrdinal(
 
 	NOTNULL(hDll);
 
-	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
+	ptExportDirectory = ADD_POINTERS(hDll, FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT)->VirtualAddress);
 	nRealOrdinal = wOrdinal - ptExportDirectory->Base;
 
 	if ((0 != ptExportDirectory->NumberOfFunctions) &&
@@ -589,7 +591,7 @@ LOADER_GetProcAddress(
 		goto lblCleanup;
 	}
 
-	if (IS_INTRESOURCE(pszProcName))
+	if (!IS_INTRESOURCE(pszProcName))
 	{
 		eStatus = loader_GetOrdinalFromName(hDll, pszProcName, &wOrdinal);
 		if (FRAME_FAILED(eStatus))

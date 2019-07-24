@@ -16,10 +16,10 @@ DllMain(
     switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
-		MB_DisplayMessage((PTSTR)"DllMain Attach Called!");
+		MB_DisplayMessage((PSTR)"DllMain Attach Called!");
 		break;
     case DLL_PROCESS_DETACH:
-		MB_DisplayMessage((PTSTR)"DllMain Detach Called!");
+		MB_DisplayMessage((PSTR)"DllMain Detach Called!");
         break;
     }
     return TRUE;

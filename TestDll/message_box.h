@@ -2,4 +2,4 @@
 
 #include "windows.h"
 
-VOID MB_DisplayMessage(PTSTR pszMessage);
+VOID MB_DisplayMessage(PSTR pszMessage);

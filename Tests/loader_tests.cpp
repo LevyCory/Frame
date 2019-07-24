@@ -12,12 +12,14 @@ extern "C"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
+typedef VOID(*PFN_DISPLAY_MESSAGE)(PCSTR);
 
+/*
 TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loader][loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0,NULL);
@@ -53,5 +55,23 @@ TEST_CASE("Test normal library loading", "[loader][loadlibrary]")
 
 	VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
 }
+*/
 
+TEST_CASE("Test the GetProcAddress function")
+{
+	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	HMODULE hDll = NULL;
+	PFN_DISPLAY_MESSAGE proc = NULL;
+	Buffer buffered_dll = read_file(dll_test_file);
+
+	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+
+	eStatus = FRAME_GetProcAddress(hDll, "MB_DisplayMessage", (FARPROC*)&proc);
+	REQUIRE(FRAMESTATUS_SUCCESS == eStatus);
+
+	proc("Test");
+
+	FRAME_FreeLibrary(hDll);
+}
 
