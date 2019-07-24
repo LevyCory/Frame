@@ -35,3 +35,16 @@ FRAME_FreeLibrary(
 {
 	LOADER_FreeLibrary(hDll);
 }
+
+/**********************************************************************************************************************
+	Function	:	FRAME_GetProcAddress
+**********************************************************************************************************************/
+FRAMESTATUS
+FRAME_GetProcAddress(
+	__in_req HMODULE hDll,
+	__in_req LPCSTR pszProcName,
+	__out FARPROC *pfnProc
+)
+{
+	return LOADER_GetProcAddress(hDll, pszProcName, pfnProc);
+}

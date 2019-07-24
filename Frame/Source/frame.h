@@ -49,6 +49,6 @@ FRAMESTATUS
 FRAME_GetProcAddress(
 	__in_req HMODULE hDll,
 	__in_req LPCSTR pszProcName,
-	__out FARPROC pfnProc
+	__out FARPROC *pfnProc
 );
 

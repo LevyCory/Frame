@@ -426,6 +426,37 @@ lblCleanup:
 }
 
 /**********************************************************************************************************************
+	Function	:	loader_GetProcByOrdinal	
+**********************************************************************************************************************/
+FARPROC
+loader_GetProcByOrdinal(
+	__in_req HMODULE hDll,
+	__in WORD wOrdinal
+)
+{
+	PIMAGE_EXPORT_DIRECTORY ptExportDirectory = NULL;
+	SIZE_T cbProcRVA = 0;
+	PDWORD pdwFunctionRVAs = NULL;
+	SIZE_T nRealOrdinal = 0;
+	FARPROC pfnProc = NULL;
+
+	NOTNULL(hDll);
+
+	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
+	nRealOrdinal = wOrdinal - ptExportDirectory->Base;
+
+	if ((0 != ptExportDirectory->NumberOfFunctions) &&
+		(nRealOrdinal < ptExportDirectory->NumberOfFunctions))
+	{
+		pdwFunctionRVAs = ADD_POINTERS(hDll, ptExportDirectory->AddressOfFunctions);
+		cbProcRVA = (SIZE_T)pdwFunctionRVAs[nRealOrdinal];
+		pfnProc = (FARPROC)(INT_PTR)ADD_POINTERS(hDll, cbProcRVA);
+	}
+
+	return pfnProc;
+}
+
+/**********************************************************************************************************************
 	Function	:	loader_CallEntryPoint
 **********************************************************************************************************************/
 FRAMESTATUS
@@ -537,4 +568,50 @@ LOADER_FreeLibrary(
 		loader_FreeExternalLibraries(hDll);
 		(VOID)VirtualFree((PVOID)hDll, 0, MEM_RELEASE);
 	}	
+}
+
+/**********************************************************************************************************************
+	Function	:	LOADER_GetProcAddress
+**********************************************************************************************************************/
+FRAMESTATUS
+LOADER_GetProcAddress(
+	__in_req HMODULE hDll,
+	__in_req PSTR pszProcName,
+	__out FARPROC *pfnProc
+)
+{
+	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	WORD wOrdinal = 0;
+
+	if ((NULL == hDll) || (NULL == pszProcName) || (NULL == pfnProc))
+	{
+		eStatus = FRAMESTATUS_LOADER_GETPROCADDRESS_INVALID_PARAMETERS;
+		goto lblCleanup;
+	}
+
+	if (IS_INTRESOURCE(pszProcName))
+	{
+		eStatus = loader_GetOrdinalFromName(hDll, pszProcName, &wOrdinal);
+		if (FRAME_FAILED(eStatus))
+		{
+			goto lblCleanup;
+		}
+	}
+
+	else
+	{
+		wOrdinal = 0x0000ffff & (SIZE_T)pszProcName;
+	}
+
+	*pfnProc = loader_GetProcByOrdinal(hDll, wOrdinal);
+	if (NULL == *pfnProc)
+	{
+		eStatus = FRAMESTATUS_LOADER_GETPROCADDRESS_PROC_NOT_FOUND;
+		goto lblCleanup;
+	}
+
+	eStatus = FRAMESTATUS_SUCCESS;
+
+lblCleanup:
+	return eStatus;
 }

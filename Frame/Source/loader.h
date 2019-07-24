@@ -39,3 +39,17 @@ VOID
 LOADER_FreeLibrary(
 	__in_req HMODULE hDll
 );
+
+/**********************************************************************************************************************
+	Function	:	LOADER_GetProcAddress
+	Parameters	:	@param[in\out\opt] -
+					@param[in\out\opt] -
+	Return		:
+	Remarks		:
+**********************************************************************************************************************/
+FRAMESTATUS
+LOADER_GetProcAddress(
+	__in_req HMODULE hDll,
+	__in_req PSTR pszProcName,
+	__out FARPROC *pfnProc
+);

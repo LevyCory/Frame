@@ -163,9 +163,8 @@ loader_GetOrdinalFromName(
 	Return		:
 	Remarks		:
 **********************************************************************************************************************/
-FRAMESTATUS
+FARPROC
 loader_GetProcByOrdinal(
 	__in_req HMODULE hDll,
-	__in WORD ordinal,
-	__out FARPROC *pfnProc
+	__in WORD wOrdinal
 );
