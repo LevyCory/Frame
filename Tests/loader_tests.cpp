@@ -104,6 +104,8 @@ TEST_CASE("Test Frame's flags")
 	HMODULE hDll = NULL;
 	PFN_DISPLAY_MESSAGE proc = NULL;
 	
+	test_event.reset();
+
 	SECTION("Test FRAME_NO_ENTRY_POINT")
 	{
 		eStatus = FRAME_LoadLibrary(buffered_dll.data(), FRAME_NO_ENTRY_POINT, &hDll);

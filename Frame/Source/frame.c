@@ -22,7 +22,7 @@ FRAME_LoadLibrary(
 )
 {
 	UNREFERENCED_PARAMETER(dwFlags);
-	return LOADER_LoadLibrary(pvDll, phDll);
+	return LOADER_LoadLibrary(pvDll, dwFlags, phDll);
 }
 
 /**********************************************************************************************************************

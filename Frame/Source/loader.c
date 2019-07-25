@@ -491,10 +491,12 @@ loader_CallEntryPoint(
 FRAMESTATUS
 LOADER_LoadLibrary(
 	__in PVOID pvImage,
+	__in DWORD dwFlags,
 	__deref_out HMODULE *phDll
 )
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	PIMAGE_OPTIONAL_HEADER ptOptionalHeader = NULL;
 	HMODULE hDll = NULL;
 	SIZE_T cbRelocationDelta = 0;
 
@@ -516,6 +518,12 @@ LOADER_LoadLibrary(
 	if (FRAME_FAILED(eStatus))
 	{
 		goto lblCleanup;	
+	}
+
+	if (FRAME_NO_ENTRY_POINT & dwFlags)
+	{
+		ptOptionalHeader = FRAME_OPTIONAL_HEADER(hDll);
+		ptOptionalHeader->AddressOfEntryPoint = 0;
 	}
 
 	if (0 != cbRelocationDelta)
