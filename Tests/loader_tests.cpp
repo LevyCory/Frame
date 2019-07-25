@@ -13,9 +13,9 @@ extern "C"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
 const std::string event_name = "TestEvent";
@@ -98,3 +98,18 @@ TEST_CASE("Test the GetProcAddress function", "[GetProcAddress]")
 	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
 }
 
+TEST_CASE("Test Frame's flags")
+{
+	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
+	HMODULE hDll = NULL;
+	PFN_DISPLAY_MESSAGE proc = NULL;
+	
+	SECTION("Test FRAME_NO_ENTRY_POINT")
+	{
+		eStatus = FRAME_LoadLibrary(buffered_dll.data(), FRAME_NO_ENTRY_POINT, &hDll);
+		REQUIRE(FRAME_SUCCESS(eStatus));
+		REQUIRE(!test_event.is_set());
+	}
+
+	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
+}
