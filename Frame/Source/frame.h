@@ -27,7 +27,7 @@
 /**********************************************************************************************************************
 	Function	:	Loads a library from memory.
 	Parameters	:	@pvDll[in] - The buffered dll.
-					@dwFlags[in] - Reserved.
+					@dwFlags[in] - Flags that can change the loader behaviour.
 					@phDll[out] - The loaded library.
 	Return		:	FRAMESTATUS
 **********************************************************************************************************************/

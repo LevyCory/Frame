@@ -190,6 +190,7 @@ frame_MapImageData(
 	// Map the PE headers
 	CopyMemory(hDll, pvImage, ptOptionalHeader->SizeOfHeaders);
 
+	// Map sections
 	for (i = 0; i < ptFileHeader->NumberOfSections; ptSection++, i++)
 	{
 		pvSectionVirtualAddress = ADD_POINTERS(hDll, ptSection->VirtualAddress);
@@ -237,7 +238,6 @@ frame_LoadExternalSymbols(
 	PIMAGE_THUNK_DATA ptName = NULL;
 	PIMAGE_THUNK_DATA ptSymbol = NULL;
 	HMODULE hLibrary = NULL;
-	DWORD dwLibraryCounter = 0;
 
 	ASSERT(NULL != hDll);
 
@@ -259,7 +259,6 @@ frame_LoadExternalSymbols(
 			eStatus = FRAMESTATUS_FRAME_LOADEXTERNALSYMBOLS_LOADLIBRARYA_FAILED;
 			goto lblCleanup;
 		}
-		dwLibraryCounter++;
 
 		ptName = (PIMAGE_THUNK_DATA)ADD_POINTERS(hDll, ptImportDescriptor->OriginalFirstThunk);
 		ptSymbol = (PIMAGE_THUNK_DATA)ADD_POINTERS(hDll, ptImportDescriptor->FirstThunk); 
@@ -420,7 +419,7 @@ frame_GetOrdinalFromName(
 	}
 
 	pwExportsOrdinalTable = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNameOrdinals);
-	*pwOrdinal = pwExportsOrdinalTable[dwNameIndex] + ptExportDirectory->Base;
+	*pwOrdinal = (WORD)(pwExportsOrdinalTable[dwNameIndex] + ptExportDirectory->Base);
 
 	eStatus = FRAMESTATUS_SUCCESS;
 
@@ -440,19 +439,19 @@ frame_GetProcByOrdinal(
 	PIMAGE_EXPORT_DIRECTORY ptExportDirectory = NULL;
 	SIZE_T cbProcRVA = 0;
 	PDWORD pdwFunctionRVAs = NULL;
-	SIZE_T nRealOrdinal = 0;
+	SIZE_T nProcIndex = 0;
 	FARPROC pfnProc = NULL;
 
 	NOTNULL(hDll);
 
 	ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
-	nRealOrdinal = wOrdinal - ptExportDirectory->Base;
+	nProcIndex = wOrdinal - ptExportDirectory->Base;
 
 	if ((0 != ptExportDirectory->NumberOfFunctions) &&
-		(nRealOrdinal < ptExportDirectory->NumberOfFunctions))
+		(nProcIndex < ptExportDirectory->NumberOfFunctions))
 	{
 		pdwFunctionRVAs = ADD_POINTERS(hDll, ptExportDirectory->AddressOfFunctions);
-		cbProcRVA = (SIZE_T)pdwFunctionRVAs[nRealOrdinal];
+		cbProcRVA = (SIZE_T)pdwFunctionRVAs[nProcIndex];
 		pfnProc = (FARPROC)(INT_PTR)ADD_POINTERS(hDll, cbProcRVA);
 	}
 
