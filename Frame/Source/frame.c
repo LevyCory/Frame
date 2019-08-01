@@ -66,6 +66,7 @@ frame_GetSectionPermissions(
 FRAMESTATUS
 frame_AllocateImageMemory(
 	__in PVOID pvDll,
+	__in BOOL bNoRelocation,
 	__out HMODULE *phDll
 )
 {
@@ -79,11 +80,19 @@ frame_AllocateImageMemory(
 	hDll = VirtualAlloc((PVOID)ptHeader->ImageBase, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
 	if (NULL == hDll)
 	{
-		hDll = VirtualAlloc(NULL, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
-		if (NULL == hDll)
+		if (bNoRelocation)
 		{
 			eStatus = FRAMESTATUS_FRAME_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED;
 			goto lblCleanup;
+		}
+		else
+		{
+			hDll = VirtualAlloc(NULL, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
+			if (NULL == hDll)
+			{
+				eStatus = FRAMESTATUS_FRAME_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED;
+				goto lblCleanup;
+			}
 		}
 	}
 
@@ -506,7 +515,7 @@ FRAME_LoadLibrary(
 		goto lblCleanup;
 	}
 
-	eStatus = frame_AllocateImageMemory(pvImage, &hDll);
+	eStatus = frame_AllocateImageMemory(pvImage, (FRAME_NO_RELOCATION & dwFlags), &hDll);
 	if (FRAME_FAILED(eStatus))
 	{
 		goto lblCleanup;	

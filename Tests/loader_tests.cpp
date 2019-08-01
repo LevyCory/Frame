@@ -104,11 +104,26 @@ TEST_CASE("Test Frame's flags")
 	
 	test_event.reset();
 
-	SECTION("Test FRAME_NO_ENTRY_POINT")
+	SECTION("FRAME_NO_DLLMAIN")
 	{
 		eStatus = FRAME_LoadLibrary(buffered_dll.data(), FRAME_NO_ENTRY_POINT, &hDll);
 		REQUIRE(FRAME_SUCCESS(eStatus));
 		REQUIRE(!test_event.is_set());
+	}
+
+	SECTION("FRAME_NO_RELOCATION")
+	{
+		PVOID pvPlaceHolder = VirtualAlloc(
+			(PVOID)FRAME_OPTIONAL_HEADER(buffered_dll.data())->ImageBase, 
+			1, 
+			MEM_RESERVE, 
+			PAGE_READONLY);
+			REQUIRE(NULL != pvPlaceHolder);
+
+		eStatus = FRAME_LoadLibrary(buffered_dll.data(), FRAME_NO_RELOCATION, &hDll);
+		REQUIRE(FRAMESTATUS_FRAME_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED == eStatus);
+
+		VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);
 	}
 
 	REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
