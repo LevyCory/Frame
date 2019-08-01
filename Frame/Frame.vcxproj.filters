@@ -4,9 +4,6 @@
     <Filter Include="Common">
       <UniqueIdentifier>{a3f4e2ba-a1e3-4d92-9405-dd3eb86658e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Loader">
-      <UniqueIdentifier>{77df811f-bc21-47c3-9a61-849a0c31471a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Frame">
       <UniqueIdentifier>{5bb45451-f4c8-42ea-b9b3-60a540baef0e}</UniqueIdentifier>
     </Filter>
@@ -18,23 +15,17 @@
     <ClInclude Include="Source\frame_status.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Source\headers.h">
-      <Filter>Loader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\loader.h">
-      <Filter>Loader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\loader_internal.h">
-      <Filter>Loader</Filter>
-    </ClInclude>
     <ClInclude Include="Source\frame.h">
+      <Filter>Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\headers.h">
+      <Filter>Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\frame_internal.h">
       <Filter>Frame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\loader.c">
-      <Filter>Loader</Filter>
-    </ClCompile>
     <ClCompile Include="Source\frame.c">
       <Filter>Frame</Filter>
     </ClCompile>

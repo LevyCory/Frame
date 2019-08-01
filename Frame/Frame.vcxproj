@@ -19,16 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\frame_internal.h" />
     <ClInclude Include="Source\frame.h" />
     <ClInclude Include="Source\frame_status.h" />
     <ClInclude Include="Source\common.h" />
     <ClInclude Include="Source\headers.h" />
-    <ClInclude Include="Source\loader.h" />
-    <ClInclude Include="Source\loader_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\frame.c" />
-    <ClCompile Include="Source\loader.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

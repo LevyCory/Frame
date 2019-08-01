@@ -7,15 +7,14 @@
 
 extern "C"
 {
-#include "frame_status.h"
-#include "loader.h"
-#include "frame.h"
+	#include "frame_status.h"
+	#include "frame.h"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
 const std::string event_name = "TestEvent";
@@ -27,20 +26,19 @@ typedef VOID(*PFN_DISPLAY_MESSAGE)(PCSTR);
 TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0,NULL);
-	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
+	REQUIRE(FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 
 	eStatus = FRAME_LoadLibrary((PVOID)0x10101010,0, NULL);
-	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
+	REQUIRE(FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 
 	eStatus = FRAME_LoadLibrary(NULL, 0, (HMODULE*)0x10101010);
-	REQUIRE(FRAMESTATUS_LOADER_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
+	REQUIRE(FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 }
 
 TEST_CASE("Test normal library loading", "[loadlibrary]")
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
 	HMODULE hDll = NULL;
-
 
 	SECTION("Sanity")
 	{
