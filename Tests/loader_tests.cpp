@@ -13,16 +13,16 @@ extern "C"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"C:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
 const std::string event_name = "TestEvent";
 Buffer buffered_dll = read_file(dll_test_file);
 Event test_event(event_name, true, true);
 
-typedef VOID(*PFN_DISPLAY_MESSAGE)(PCSTR);
+typedef VOID(*PFN_SIGNAL_EVENT)(PCSTR);
 
 TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loadlibrary]")
 {
@@ -72,7 +72,7 @@ TEST_CASE("Test the GetProcAddress function", "[GetProcAddress]")
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
 	HMODULE hDll = NULL;
-	PFN_DISPLAY_MESSAGE proc = NULL;
+	PFN_SIGNAL_EVENT proc = NULL;
 
 	eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
 	REQUIRE(FRAME_SUCCESS(eStatus));
@@ -102,7 +102,7 @@ TEST_CASE("Test Frame's flags")
 {
 	FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
 	HMODULE hDll = NULL;
-	PFN_DISPLAY_MESSAGE proc = NULL;
+	PFN_SIGNAL_EVENT proc = NULL;
 	
 	test_event.reset();
 
