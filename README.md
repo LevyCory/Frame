@@ -1,9 +1,11 @@
 # Frame
-A simple loader that is able to load in-memory dll.
+A simple loader that is able to load in-memory dlls.
 
 # Usage
 
 ```C
+#include "frame.h"
+
 // Loading a dll from memory. pvDll being the in-memory dll.
 HMODULE hDll = FRAME_LoadLibrary(pvDll);
 
