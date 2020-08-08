@@ -12,9 +12,9 @@ extern "C"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x64\\TestDll.dll";
+const std::wstring dll_test_file = L"..\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"F:\\Projects\\Frame\\Bin\\TestDll\\x86\\TestDll.dll";
+const std::wstring dll_test_file = L"..\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
 const std::string event_name = "TestEvent";
