@@ -7,24 +7,24 @@
 BOOL
 WINAPI 
 DllMain( 
-	HMODULE hModule,
+    HMODULE hModule,
     DWORD  dwReason,
-	LPVOID lpReserved
+    LPVOID lpReserved
 )
 {
-	UNREFERENCED_PARAMETER(hModule);
-	UNREFERENCED_PARAMETER(lpReserved);
+    UNREFERENCED_PARAMETER(hModule);
+    UNREFERENCED_PARAMETER(lpReserved);
 
-	const std::string name = "TestEvent";
+    const std::string name{"TestEvent"};
 
     switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
-		SignalEvent(name.c_str());
-		break;
+        SignalEvent(name.c_str());
+        break;
 
     case DLL_PROCESS_DETACH:
-		SignalEvent(name.c_str());
+        SignalEvent(name.c_str());
         break;
     }
     return TRUE;
