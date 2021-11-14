@@ -25,13 +25,13 @@ typedef VOID(*PFN_DISPLAY_MESSAGE)(PCSTR);
 
 TEST_CASE("Test FRAME_LoadLibrary invalid args", "[loadlibrary]")
 {
-    FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, 0, NULL);
+    FRAMESTATUS eStatus = FRAME_LoadLibrary(NULL, NULL);
     REQUIRE(FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 
-    eStatus = FRAME_LoadLibrary((PVOID)0x10101010,0, NULL);
+    eStatus = FRAME_LoadLibrary((PVOID)0x10101010, NULL);
     REQUIRE(FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 
-    eStatus = FRAME_LoadLibrary(NULL, 0, (HMODULE*)0x10101010);
+    eStatus = FRAME_LoadLibrary(NULL, (HMODULE*)0x10101010);
     REQUIRE(FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS == eStatus);
 }
 
@@ -42,7 +42,7 @@ TEST_CASE("Test normal library loading", "[loadlibrary]")
 
     SECTION("Sanity")
     {
-        eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+        eStatus = FRAME_LoadLibrary(buffered_dll.data(), &hDll);
         REQUIRE(FRAME_SUCCESS(eStatus));
         REQUIRE(test_event.is_set());
     }
@@ -56,7 +56,7 @@ TEST_CASE("Test normal library loading", "[loadlibrary]")
             PAGE_READONLY);
             REQUIRE(NULL != pvPlaceHolder);
 
-        eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+        eStatus = FRAME_LoadLibrary(buffered_dll.data(), &hDll);
         REQUIRE(FRAME_SUCCESS(eStatus));
         REQUIRE(test_event.is_set());
 
@@ -72,7 +72,7 @@ TEST_CASE("Test the GetProcAddress function", "[GetProcAddress]")
     HMODULE hDll = NULL;
     PFN_DISPLAY_MESSAGE proc = NULL;
 
-    eStatus = FRAME_LoadLibrary(buffered_dll.data(), 0, &hDll);
+    eStatus = FRAME_LoadLibrary(buffered_dll.data(), &hDll);
     REQUIRE(FRAME_SUCCESS(eStatus));
 
     SECTION("Get proc by name")
@@ -96,7 +96,7 @@ TEST_CASE("Test the GetProcAddress function", "[GetProcAddress]")
     REQUIRE_NOTHROW(FRAME_FreeLibrary(hDll));
 }
 
-TEST_CASE("Test Frame's flags")
+TEST_CASE("Test Frame's flags", "[loadlibraryex]")
 {
     FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
     HMODULE hDll = NULL;
@@ -106,7 +106,7 @@ TEST_CASE("Test Frame's flags")
 
     SECTION("FRAME_NO_DLLMAIN")
     {
-        eStatus = FRAME_LoadLibrary(buffered_dll.data(), FRAME_NO_ENTRY_POINT, &hDll);
+        eStatus = FRAME_LoadLibraryEx(buffered_dll.data(), FRAME_NO_ENTRY_POINT, &hDll);
         REQUIRE(FRAME_SUCCESS(eStatus));
         REQUIRE(!test_event.is_set());
     }
@@ -120,7 +120,7 @@ TEST_CASE("Test Frame's flags")
             PAGE_READONLY);
             REQUIRE(NULL != pvPlaceHolder);
 
-        eStatus = FRAME_LoadLibrary(buffered_dll.data(), FRAME_NO_RELOCATION, &hDll);
+        eStatus = FRAME_LoadLibraryEx(buffered_dll.data(), FRAME_NO_RELOCATION, &hDll);
         REQUIRE(FRAMESTATUS_FRAME_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED == eStatus);
 
         VirtualFree(pvPlaceHolder, 0, MEM_RELEASE);

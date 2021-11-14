@@ -24,22 +24,34 @@
 #define FRAME_NO_RELOCATION (2)
 
 /**
- *  Function    :   Loads a library from memory.
+ *  Purpose     :   Loads a dll from memory.
  *  Parameters  :   @pvDll[in] - The buffered dll.
- *                  @dwFlags[in] - Flags that can change the loader behaviour.
+ *                  @dwFlags[in] - Flags that affect the loader behavior.
+ *                  @phDll[out] - The loaded library.
+ *  Return      :   FRAMESTATUS
+ */
+FRAMESTATUS
+FRAME_LoadLibraryEx(
+    __in PVOID pvDll,
+    __in DWORD dwFlags,
+    __deref_out HMODULE* phDll
+);
+
+/**
+ *  Purpose     :   Loads a dll from memory.
+ *  Parameters  :   @pvDll[in] - The buffered dll.
  *                  @phDll[out] - The loaded library.
  *  Return      :   FRAMESTATUS
  */
 FRAMESTATUS
 FRAME_LoadLibrary(
     __in PVOID pvDll,
-    __in DWORD dwFlags,
-    __deref_out HMODULE *phDlll
+    __deref_out HMODULE *phDll
 );
 
 /**
- *  Function    :   FRAME_FreeLibrary
- *  Parameters  :   @hDll[in] - A library loaded with FRAME_LoadLibrary.
+ *  Purpose     :   Free a dll that was loaded with FRAME_LoadLibraryEx
+ *  Parameters  :   @hDll[in] - The loaded dll
  */
 VOID
 FRAME_FreeLibrary(

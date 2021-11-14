@@ -455,7 +455,7 @@ frame_CallEntryPoint(
 }
 
 FRAMESTATUS
-FRAME_LoadLibrary(
+FRAME_LoadLibraryEx(
     __in PVOID pvImage,
     __in DWORD dwFlags,
     __deref_out HMODULE *phDll
@@ -527,6 +527,15 @@ FRAME_LoadLibrary(
 
 lblCleanup:
     return eStatus;
+}
+
+FRAMESTATUS
+FRAME_LoadLibrary(
+    __in PVOID pvDll,
+    __deref_out HMODULE *phDll
+)
+{
+    return FRAME_LoadLibraryEx(pvDll, 0, phDll);
 }
 
 VOID
