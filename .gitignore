@@ -50,3 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*.vs
+*DotSettings*
+Tests/x64
+Tests/x86
+Bin/*

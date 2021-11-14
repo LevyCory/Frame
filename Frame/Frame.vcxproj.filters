@@ -4,8 +4,11 @@
     <Filter Include="Common">
       <UniqueIdentifier>{a3f4e2ba-a1e3-4d92-9405-dd3eb86658e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Frame">
-      <UniqueIdentifier>{5bb45451-f4c8-42ea-b9b3-60a540baef0e}</UniqueIdentifier>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{341ff5ce-4a48-4ef7-90fd-1de57753e3ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4f64facf-ee3d-4da1-9d95-d9efc0737781}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -16,18 +19,15 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Source\frame.h">
-      <Filter>Frame</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\headers.h">
-      <Filter>Frame</Filter>
+      <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\frame_internal.h">
-      <Filter>Frame</Filter>
+      <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\frame.c">
-      <Filter>Frame</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

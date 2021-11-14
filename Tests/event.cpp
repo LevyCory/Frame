@@ -4,20 +4,19 @@
 
 Event::Event(const std::string& name, bool manual_reset, bool initial_state) :
     m_event(_s_create_event(name, manual_reset, initial_state))
-{ }
+{}
 
 Event::~Event()
 {
     try
     {
-        if (nullptr != m_event)
+        if (m_event)
         {
             CloseHandle(m_event);
         }
     }
-
     catch (...)
-    { }
+    {}
 }
 
 
@@ -55,7 +54,7 @@ bool Event::is_set()
 HANDLE Event::_s_create_event(const std::string& name, bool manual_reset, bool initial_state)
 {
     const HANDLE event = CreateEventA(nullptr, manual_reset, initial_state, name.c_str());
-    if (nullptr == event)
+    if (!event)
     {
         throw std::exception("Could not set event");
     }

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Vendor">
-      <UniqueIdentifier>{6f254597-98cf-4160-a015-f5b56bea2f70}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{4a7523a1-6952-4570-a075-93486e99fb33}</UniqueIdentifier>
     </Filter>
@@ -23,9 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Vendor\catch.h">
-      <Filter>Vendor</Filter>
-    </ClInclude>
     <ClInclude Include="testing_common.h">
       <Filter>Common</Filter>
     </ClInclude>

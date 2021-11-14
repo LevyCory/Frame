@@ -1,8 +1,8 @@
 #define CATCH_CONFIG_MAIN
-#include <Catch2/catch.h>
+#include <Catch2/include/catch.hpp>
 
 #include "testing_common.h"
-#include "headers.h"
+#include "common.h"
 #include "event.hpp"
 
 extern "C"
@@ -12,9 +12,9 @@ extern "C"
 }
 
 #ifdef _WIN64
-const std::wstring dll_test_file = L"..\\Bin\\TestDll\\x64\\TestDll.dll";
+static const std::wstring dll_test_file = L"..\\Bin\\TestDll\\x64\\TestDll.dll";
 #else
-const std::wstring dll_test_file = L"..\\Bin\\TestDll\\x86\\TestDll.dll";
+static const std::wstring dll_test_file = L"..\\Bin\\TestDll\\x86\\TestDll.dll";
 #endif
 
 const std::string event_name = "TestEvent";

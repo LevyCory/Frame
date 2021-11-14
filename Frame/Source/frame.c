@@ -1,19 +1,11 @@
-/**********************************************************************************************************************
-    File Name   :   Frame.c
-    Project     :   Frame
-    Author      :   coryl
-    Created     :   29/05/2019 @ 08:05
-**********************************************************************************************************************/
-/** Headers **********************************************************************************************************/
-
+/**
+ *  Name        :   frame.c
+ *  Author      :   Cory Levy
+ *  Created     :   29/05/2019
+ */
 #include "frame.h"
 #include "frame_internal.h"
 
-/** Functions ********************************************************************************************************/
-
-/**********************************************************************************************************************
-    Function    :   frame_GetSectionPermissions
-**********************************************************************************************************************/
 DWORD
 frame_GetSectionPermissions(
     __in DWORD dwSectionCharacteristics
@@ -60,9 +52,6 @@ frame_GetSectionPermissions(
     return dwPermissions;
 }
 
-/**********************************************************************************************************************
-    Function    : frame_AllocateImageMemory
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_AllocateImageMemory(
     __in PVOID pvDll,
@@ -108,9 +97,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_ProtectMemory
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_ProtectMemory(
     __in_req HMODULE hDll
@@ -133,7 +119,7 @@ frame_ProtectMemory(
     {
         if (0 < ptSection->SizeOfRawData)
         {
-            pvSectionMemory = ADD_POINTERS(hDll, ptSection->VirtualAddress);
+            pvSectionMemory = PTR_ADD(hDll, ptSection->VirtualAddress);
 
             if (IMAGE_SCN_MEM_DISCARDABLE & ptSection->Characteristics)
             {
@@ -167,9 +153,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_LoadImageData
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_MapImageData(
     __in PVOID pvImage,
@@ -200,13 +183,12 @@ frame_MapImageData(
     // Map sections
     for (i = 0; i < ptFileHeader->NumberOfSections; ptSection++, i++)
     {
-        pvSectionVirtualAddress = ADD_POINTERS(hDll, ptSection->VirtualAddress);
+        pvSectionVirtualAddress = PTR_ADD(hDll, ptSection->VirtualAddress);
 
         if (0 == ptSection->SizeOfRawData)
         {
             cbSectionSize = ptSection->Misc.VirtualSize;
         }
-
         else
         {
             cbSectionSize = ptSection->SizeOfRawData;
@@ -220,7 +202,7 @@ frame_MapImageData(
 
         if (0 != ptSection->SizeOfRawData)
         {
-            CopyMemory(pvSectionVirtualAddress, ADD_POINTERS(pvImage, ptSection->PointerToRawData), cbSectionSize);
+            CopyMemory(pvSectionVirtualAddress, PTR_ADD(pvImage, ptSection->PointerToRawData), cbSectionSize);
         }
     }
 
@@ -230,9 +212,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_LoadExternalSymbols
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_LoadExternalSymbols(
     __in_req HMODULE hDll
@@ -256,24 +235,24 @@ frame_LoadExternalSymbols(
         goto lblCleanup;
     }
 
-    for (ptImportDescriptor = ADD_POINTERS(hDll, ptImports->VirtualAddress);
+    for (ptImportDescriptor = PTR_ADD(hDll, ptImports->VirtualAddress);
         0 != ptImportDescriptor->Characteristics;
         ptImportDescriptor++)
     {
-        hLibrary = LoadLibraryA((PCHAR)ADD_POINTERS(hDll, ptImportDescriptor->Name));
+        hLibrary = LoadLibraryA((PCHAR)PTR_ADD(hDll, ptImportDescriptor->Name));
         if (NULL == hLibrary)
         {
             eStatus = FRAMESTATUS_FRAME_LOADEXTERNALSYMBOLS_LOADLIBRARYA_FAILED;
             goto lblCleanup;
         }
 
-        ptName = (PIMAGE_THUNK_DATA)ADD_POINTERS(hDll, ptImportDescriptor->OriginalFirstThunk);
-        ptSymbol = (PIMAGE_THUNK_DATA)ADD_POINTERS(hDll, ptImportDescriptor->FirstThunk);
+        ptName = (PIMAGE_THUNK_DATA)PTR_ADD(hDll, ptImportDescriptor->OriginalFirstThunk);
+        ptSymbol = (PIMAGE_THUNK_DATA)PTR_ADD(hDll, ptImportDescriptor->FirstThunk);
 
         for (; 0 != ptName->u1.Function; ptName++, ptSymbol++)
         {
             // Import symbols from the loaded library
-            ptData = (PIMAGE_IMPORT_BY_NAME)ADD_POINTERS(hDll, ptName->u1.AddressOfData);
+            ptData = (PIMAGE_IMPORT_BY_NAME)PTR_ADD(hDll, ptName->u1.AddressOfData);
             ptSymbol->u1.Function = (SIZE_T)GetProcAddress(hLibrary, (LPCSTR)ptData->Name);
             if (0 == ptSymbol->u1.Function)
             {
@@ -289,9 +268,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_RelocateSymbols
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_RelocateSymbols(
     __in_req HMODULE hDll,
@@ -317,14 +293,14 @@ frame_RelocateSymbols(
     }
 
     ptRelocationData = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_BASERELOC);
-    ptRelocationBlock = (PIMAGE_BASE_RELOCATION)ADD_POINTERS(hDll, ptRelocationData->VirtualAddress);
+    ptRelocationBlock = (PIMAGE_BASE_RELOCATION)PTR_ADD(hDll, ptRelocationData->VirtualAddress);
 
     for (cbBytesRead = 0; cbBytesRead < ptRelocationData->Size; cbBytesRead += ptRelocationBlock->SizeOfBlock,
         ptRelocationBlock = (PIMAGE_BASE_RELOCATION)pwRelocationEntry)
     {
-        pvPageRVA = ADD_POINTERS(hDll, ptRelocationBlock->VirtualAddress);
+        pvPageRVA = PTR_ADD(hDll, ptRelocationBlock->VirtualAddress);
         dwRelocationCount = (ptRelocationBlock->SizeOfBlock - sizeof(*ptRelocationBlock)) / sizeof(WORD);
-        pwRelocationEntry = (PWORD)ADD_POINTERS(ptRelocationBlock, sizeof(*ptRelocationBlock));
+        pwRelocationEntry = (PWORD)PTR_ADD(ptRelocationBlock, sizeof(*ptRelocationBlock));
 
         // Perform Relocations
         for (dwRelocationCounter = 0; dwRelocationCounter < dwRelocationCount; dwRelocationCounter++, pwRelocationEntry++)
@@ -332,10 +308,8 @@ frame_RelocateSymbols(
             switch (FRAME_RELOCATION_TYPE(*pwRelocationEntry))
             {
             case IMAGE_REL_BASED_HIGHLOW:
-                __fallthrough;
-
             case IMAGE_REL_BASED_DIR64:
-                pcbReference = (PSIZE_T)ADD_POINTERS(pvPageRVA, FRAME_RELOCATION_OFFSET(*pwRelocationEntry));
+                pcbReference = (PSIZE_T)PTR_ADD(pvPageRVA, FRAME_RELOCATION_OFFSET(*pwRelocationEntry));
                 *pcbReference += cbRelocationDelta;
                 break;
 
@@ -355,9 +329,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_FreeExternalLibraries
-**********************************************************************************************************************/
 VOID
 frame_FreeExternalLibraries(
     __in_req HMODULE hDll
@@ -373,10 +344,10 @@ frame_FreeExternalLibraries(
 
     if (NULL != ptDataDirectory)
     {
-        ptImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)ADD_POINTERS(hDll, ptDataDirectory->VirtualAddress);
+        ptImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)PTR_ADD(hDll, ptDataDirectory->VirtualAddress);
         for (; 0 != ptImportDescriptor->Characteristics; ptImportDescriptor++)
         {
-            hLibrary = GetModuleHandleA((PCHAR)ADD_POINTERS(hDll, ptImportDescriptor->Name));
+            hLibrary = GetModuleHandleA((PCHAR)PTR_ADD(hDll, ptImportDescriptor->Name));
             if (NULL == hLibrary)
             {
                 continue;
@@ -387,9 +358,6 @@ frame_FreeExternalLibraries(
     }
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_GetOrdinalFromName
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_GetOrdinalFromName(
     __in_req HMODULE hDll,
@@ -409,10 +377,10 @@ frame_GetOrdinalFromName(
 
     ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
 
-    pdwNamePointer = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNames);
+    pdwNamePointer = PTR_ADD(hDll, ptExportDirectory->AddressOfNames);
     for (dwNameIndex = 0; dwNameIndex < ptExportDirectory->NumberOfFunctions; dwNameIndex++)
     {
-        pszExportName = ADD_POINTERS(hDll, *pdwNamePointer);
+        pszExportName = PTR_ADD(hDll, *pdwNamePointer);
         if (0 == strncmp(pszName, pszExportName, MAX_PROC_NAME_SIZE))
         {
             break;
@@ -425,7 +393,7 @@ frame_GetOrdinalFromName(
         goto lblCleanup;
     }
 
-    pwExportsOrdinalTable = ADD_POINTERS(hDll, ptExportDirectory->AddressOfNameOrdinals);
+    pwExportsOrdinalTable = PTR_ADD(hDll, ptExportDirectory->AddressOfNameOrdinals);
     *pwOrdinal = (WORD)(pwExportsOrdinalTable[dwNameIndex] + ptExportDirectory->Base);
 
     eStatus = FRAMESTATUS_SUCCESS;
@@ -434,9 +402,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_GetProcByOrdinal
-**********************************************************************************************************************/
 FARPROC
 frame_GetProcByOrdinal(
     __in_req HMODULE hDll,
@@ -457,17 +422,14 @@ frame_GetProcByOrdinal(
     if ((0 != ptExportDirectory->NumberOfFunctions) &&
         (nProcIndex < ptExportDirectory->NumberOfFunctions))
     {
-        pdwFunctionRVAs = ADD_POINTERS(hDll, ptExportDirectory->AddressOfFunctions);
+        pdwFunctionRVAs = PTR_ADD(hDll, ptExportDirectory->AddressOfFunctions);
         cbProcRVA = (SIZE_T)pdwFunctionRVAs[nProcIndex];
-        pfnProc = (FARPROC)(INT_PTR)ADD_POINTERS(hDll, cbProcRVA);
+        pfnProc = (FARPROC)(INT_PTR)PTR_ADD(hDll, cbProcRVA);
     }
 
     return pfnProc;
 }
 
-/**********************************************************************************************************************
-    Function    :   frame_CallEntryPoint
-**********************************************************************************************************************/
 FRAMESTATUS
 frame_CallEntryPoint(
     __in_req HMODULE hDll,
@@ -475,14 +437,14 @@ frame_CallEntryPoint(
 )
 {
     FRAMESTATUS eStatus = FRAMESTATUS_SUCCESS;
-    PFNENTRYPOINT pfnEntryPoint = NULL;
+    PFNDLLMAIN pfnEntryPoint = NULL;
     PIMAGE_OPTIONAL_HEADER ptHeader = FRAME_OPTIONAL_HEADER(hDll);
 
     ASSERT(NULL != hDll);
 
     if (0 != ptHeader->AddressOfEntryPoint)
     {
-        pfnEntryPoint = (PFNENTRYPOINT)(DWORD_PTR)ADD_POINTERS(hDll, ptHeader->AddressOfEntryPoint);
+        pfnEntryPoint = (PFNDLLMAIN)(DWORD_PTR)PTR_ADD(hDll, ptHeader->AddressOfEntryPoint);
         if(!pfnEntryPoint((HINSTANCE)hDll, dwReason, 0))
         {
             eStatus = FRAMESTATUS_FRAME_CALLENTRYPOINT_ENTRYPOINT_FAILED;
@@ -492,9 +454,6 @@ frame_CallEntryPoint(
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   FRAME_LoadLibrary
-**********************************************************************************************************************/
 FRAMESTATUS
 FRAME_LoadLibrary(
     __in PVOID pvImage,
@@ -519,7 +478,7 @@ FRAME_LoadLibrary(
         goto lblCleanup;
     }
 
-    cbRelocationDelta = (SIZE_T)SUB_POINTERS(hDll, FRAME_OPTIONAL_HEADER(pvImage)->ImageBase);
+    cbRelocationDelta = (SIZE_T)PTR_SUB(hDll, FRAME_OPTIONAL_HEADER(pvImage)->ImageBase);
 
     eStatus = frame_MapImageData(pvImage, hDll);
     if (FRAME_FAILED(eStatus))
@@ -570,9 +529,6 @@ lblCleanup:
     return eStatus;
 }
 
-/**********************************************************************************************************************
-    Function    :   FRAME_FreeLibrary
-**********************************************************************************************************************/
 VOID
 FRAME_FreeLibrary(
     __in_req HMODULE hDll
@@ -587,13 +543,10 @@ FRAME_FreeLibrary(
     }
 }
 
-/**********************************************************************************************************************
-    Function    :   FRAME_GetProcAddress
-**********************************************************************************************************************/
 FRAMESTATUS
 FRAME_GetProcAddress(
     __in_req HMODULE hDll,
-    __in_req PSTR pszProcName,
+    __in_req LPCSTR pszProcName,
     __out FARPROC *pfnProc
 )
 {
@@ -614,7 +567,6 @@ FRAME_GetProcAddress(
             goto lblCleanup;
         }
     }
-
     else
     {
         wOrdinal = GET_INT_RESOURCE(pszProcName);
