@@ -18,38 +18,22 @@ frame_GetSectionPermissions(
     switch (dwSimpleCharacteristics)
     {
     case IMAGE_SCN_MEM_READ:
-        dwPermissions = PAGE_READONLY;
-        break;
-
+        return PAGE_READONLY;
     case IMAGE_SCN_MEM_WRITE:
-        dwPermissions = PAGE_WRITECOPY;
-        break;
-
+        return PAGE_WRITECOPY;
     case IMAGE_SCN_MEM_EXECUTE:
-        dwPermissions = PAGE_EXECUTE;
-        break;
-
+        return PAGE_EXECUTE;
     case (IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE):
-        dwPermissions = PAGE_READWRITE;
-        break;
-
+        return PAGE_READWRITE;
     case (IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_EXECUTE):
-        dwPermissions = PAGE_EXECUTE_READ;
-        break;
-
+        return PAGE_EXECUTE_READ;
     case (IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_EXECUTE):
-        dwPermissions = PAGE_EXECUTE_WRITECOPY;
-        break;
-
+        return PAGE_EXECUTE_WRITECOPY;
     case (IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_EXECUTE):
-        dwPermissions = PAGE_EXECUTE_READWRITE;
-        break;
-
+        return PAGE_EXECUTE_READWRITE;
     default:
-        dwPermissions = PAGE_NOACCESS;
+        return PAGE_NOACCESS;
     }
-
-    return dwPermissions;
 }
 
 FRAMESTATUS
@@ -63,11 +47,11 @@ frame_AllocateImageMemory(
     PIMAGE_OPTIONAL_HEADER ptHeader = FRAME_OPTIONAL_HEADER(pvDll);
     PVOID hDll = NULL;
 
-    ASSERT(NULL != pvDll);
-    ASSERT(NULL != phDll);
+    ASSERT(pvDll);
+    ASSERT(phDll);
 
     hDll = VirtualAlloc((PVOID)ptHeader->ImageBase, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
-    if (NULL == hDll)
+    if (!hDll)
     {
         if (bNoRelocation)
         {
@@ -76,7 +60,7 @@ frame_AllocateImageMemory(
         }
 
         hDll = VirtualAlloc(NULL, ptHeader->SizeOfImage, MEM_RESERVE, PAGE_READWRITE);
-        if (NULL == hDll)
+        if (!hDll)
         {
             eStatus = FRAMESTATUS_FRAME_ALLOCATEIMAGEMEMORY_VIRTUALALLOC_FAILED;
             goto lblCleanup;
@@ -89,9 +73,9 @@ frame_AllocateImageMemory(
     eStatus = FRAMESTATUS_SUCCESS;
 
 lblCleanup:
-    if (NULL != hDll)
+    if (hDll)
     {
-        (VOID)VirtualFree(hDll, 0, MEM_RELEASE);
+        VirtualFree(hDll, 0, MEM_RELEASE);
     }
 
     return eStatus;
@@ -110,17 +94,15 @@ frame_ProtectMemory(
     DWORD dwSectionCounter = 0;
     DWORD dwSectionCount = 0;
 
-    ASSERT(NULL != hDll);
+    ASSERT(hDll);
 
     ptSection = FRAME_SECTION_HEADER(hDll);
     dwSectionCount = FRAME_FILE_HEADER(hDll)->NumberOfSections;
-
     for (dwSectionCounter = 0; dwSectionCounter < dwSectionCount; dwSectionCounter++, ptSection++)
     {
         if (0 < ptSection->SizeOfRawData)
         {
             pvSectionMemory = PTR_ADD(hDll, ptSection->VirtualAddress);
-
             if (IMAGE_SCN_MEM_DISCARDABLE & ptSection->Characteristics)
             {
                 if (!VirtualFree(pvSectionMemory, ptSection->Misc.VirtualSize, MEM_DECOMMIT))
@@ -129,16 +111,13 @@ frame_ProtectMemory(
                     goto lblCleanup;
                 }
             }
-
             else
             {
                 dwPermissions = frame_GetSectionPermissions(ptSection->Characteristics);
-
-                if (!VirtualProtect(
-                    pvSectionMemory,
-                    min(ptSection->SizeOfRawData, ptSection->Misc.VirtualSize),
-                    dwPermissions,
-                    &dwOldPermissions))
+                if (!VirtualProtect(pvSectionMemory,
+                                    min(ptSection->SizeOfRawData, ptSection->Misc.VirtualSize),
+                                    dwPermissions,
+                                    &dwOldPermissions))
                 {
                     eStatus = FRAMESTATUS_FRAME_PROTECTMEMORY_VIRTUALPROTECT_FAILED;
                     goto lblCleanup;
@@ -167,11 +146,11 @@ frame_MapImageData(
     DWORD cbSectionSize = 0;
     DWORD i = 0;
 
-    ASSERT(NULL != pvImage);
-    ASSERT(NULL != hDll);
+    ASSERT(pvImage);
+    ASSERT(hDll);
 
     hDll = VirtualAlloc(hDll, ptOptionalHeader->SizeOfHeaders, MEM_COMMIT, PAGE_READWRITE);
-    if (NULL == hDll)
+    if (!hDll)
     {
         eStatus = FRAMESTATUS_FRAME_MAPIMAGEDATA_PEHEADERS_VIRTUALALLOC_FAILED;
         goto lblCleanup;
@@ -184,23 +163,14 @@ frame_MapImageData(
     for (i = 0; i < ptFileHeader->NumberOfSections; ptSection++, i++)
     {
         pvSectionVirtualAddress = PTR_ADD(hDll, ptSection->VirtualAddress);
-
-        if (0 == ptSection->SizeOfRawData)
-        {
-            cbSectionSize = ptSection->Misc.VirtualSize;
-        }
-        else
-        {
-            cbSectionSize = ptSection->SizeOfRawData;
-        }
-
-        if(NULL == VirtualAlloc(pvSectionVirtualAddress, cbSectionSize, MEM_COMMIT, PAGE_READWRITE))
+        cbSectionSize = ptSection->SizeOfRawData ? ptSection->SizeOfRawData : ptSection->Misc.VirtualSize;
+        if(!VirtualAlloc(pvSectionVirtualAddress, cbSectionSize, MEM_COMMIT, PAGE_READWRITE))
         {
             eStatus = FRAMESTATUS_FRAME_MAPIMAGEDATA_SECTION_VIRTUALALLOC_FAILED;
             goto lblCleanup;
         }
 
-        if (0 != ptSection->SizeOfRawData)
+        if (ptSection->SizeOfRawData)
         {
             CopyMemory(pvSectionVirtualAddress, PTR_ADD(pvImage, ptSection->PointerToRawData), cbSectionSize);
         }
@@ -225,22 +195,21 @@ frame_LoadExternalSymbols(
     PIMAGE_THUNK_DATA ptSymbol = NULL;
     HMODULE hLibrary = NULL;
 
-    ASSERT(NULL != hDll);
+    ASSERT(hDll);
 
     ptImports = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_IMPORT);
-
-    if (0 == ptImports->Size)
+    if (!ptImports->Size)
     {
         eStatus = FRAMESTATUS_SUCCESS;
         goto lblCleanup;
     }
 
     for (ptImportDescriptor = PTR_ADD(hDll, ptImports->VirtualAddress);
-        0 != ptImportDescriptor->Characteristics;
-        ptImportDescriptor++)
+         ptImportDescriptor->Characteristics;
+         ptImportDescriptor++)
     {
         hLibrary = LoadLibraryA((PCHAR)PTR_ADD(hDll, ptImportDescriptor->Name));
-        if (NULL == hLibrary)
+        if (!hLibrary)
         {
             eStatus = FRAMESTATUS_FRAME_LOADEXTERNALSYMBOLS_LOADLIBRARYA_FAILED;
             goto lblCleanup;
@@ -248,13 +217,12 @@ frame_LoadExternalSymbols(
 
         ptName = (PIMAGE_THUNK_DATA)PTR_ADD(hDll, ptImportDescriptor->OriginalFirstThunk);
         ptSymbol = (PIMAGE_THUNK_DATA)PTR_ADD(hDll, ptImportDescriptor->FirstThunk);
-
-        for (; 0 != ptName->u1.Function; ptName++, ptSymbol++)
+        for (; ptName->u1.Function; ptName++, ptSymbol++)
         {
             // Import symbols from the loaded library
             ptData = (PIMAGE_IMPORT_BY_NAME)PTR_ADD(hDll, ptName->u1.AddressOfData);
             ptSymbol->u1.Function = (SIZE_T)GetProcAddress(hLibrary, (LPCSTR)ptData->Name);
-            if (0 == ptSymbol->u1.Function)
+            if (!ptSymbol->u1.Function)
             {
                 eStatus = FRAMESTATUS_FRAME_LOADEXTERNALSYMBOLS_GETPROCADDRESS_FAILED;
                 goto lblCleanup;
@@ -284,9 +252,9 @@ frame_RelocateSymbols(
     DWORD dwRelocationCounter = 0;
     DWORD cbBytesRead = 0;
 
-    ASSERT(NULL != hDll);
+    ASSERT(hDll);
 
-    if (0 == cbRelocationDelta)
+    if (!cbRelocationDelta)
     {
         eStatus = FRAMESTATUS_SUCCESS;
         goto lblCleanup;
@@ -294,16 +262,18 @@ frame_RelocateSymbols(
 
     ptRelocationData = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_BASERELOC);
     ptRelocationBlock = (PIMAGE_BASE_RELOCATION)PTR_ADD(hDll, ptRelocationData->VirtualAddress);
-
-    for (cbBytesRead = 0; cbBytesRead < ptRelocationData->Size; cbBytesRead += ptRelocationBlock->SizeOfBlock,
-        ptRelocationBlock = (PIMAGE_BASE_RELOCATION)pwRelocationEntry)
+    for (cbBytesRead = 0;
+         cbBytesRead < ptRelocationData->Size;
+         cbBytesRead += ptRelocationBlock->SizeOfBlock, ptRelocationBlock = (PIMAGE_BASE_RELOCATION)pwRelocationEntry)
     {
         pvPageRVA = PTR_ADD(hDll, ptRelocationBlock->VirtualAddress);
         dwRelocationCount = (ptRelocationBlock->SizeOfBlock - sizeof(*ptRelocationBlock)) / sizeof(WORD);
         pwRelocationEntry = (PWORD)PTR_ADD(ptRelocationBlock, sizeof(*ptRelocationBlock));
 
         // Perform Relocations
-        for (dwRelocationCounter = 0; dwRelocationCounter < dwRelocationCount; dwRelocationCounter++, pwRelocationEntry++)
+        for (dwRelocationCounter = 0;
+             dwRelocationCounter < dwRelocationCount;
+             dwRelocationCounter++, pwRelocationEntry++)
         {
             switch (FRAME_RELOCATION_TYPE(*pwRelocationEntry))
             {
@@ -312,10 +282,8 @@ frame_RelocateSymbols(
                 pcbReference = (PSIZE_T)PTR_ADD(pvPageRVA, FRAME_RELOCATION_OFFSET(*pwRelocationEntry));
                 *pcbReference += cbRelocationDelta;
                 break;
-
             case IMAGE_REL_BASED_ABSOLUTE:
                 continue;
-
             default:
                 eStatus = FRAMESTATUS_FRAME_RELOCATESYMBOLS_INVALID_RELOCATION_TYPE;
                 goto lblCleanup;
@@ -338,17 +306,16 @@ frame_FreeExternalLibraries(
     PIMAGE_DATA_DIRECTORY ptDataDirectory = NULL;
     HMODULE hLibrary = NULL;
 
-    ASSERT(NULL != hDll);
+    ASSERT(hDll);
 
     ptDataDirectory = FRAME_DATA_DIRECTORY_ENTRY(hDll, IMAGE_DIRECTORY_ENTRY_IMPORT);
-
-    if (NULL != ptDataDirectory)
+    if (!ptDataDirectory)
     {
         ptImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)PTR_ADD(hDll, ptDataDirectory->VirtualAddress);
-        for (; 0 != ptImportDescriptor->Characteristics; ptImportDescriptor++)
+        for (; ptImportDescriptor->Characteristics; ptImportDescriptor++)
         {
             hLibrary = GetModuleHandleA((PCHAR)PTR_ADD(hDll, ptImportDescriptor->Name));
-            if (NULL == hLibrary)
+            if (!hLibrary)
             {
                 continue;
             }
@@ -372,16 +339,15 @@ frame_GetOrdinalFromName(
     DWORD dwNameIndex = 0;
     PIMAGE_EXPORT_DIRECTORY ptExportDirectory = NULL;
 
-    NOTNULL(hDll);
-    NOTNULL(pszName);
+    ASSERT(hDll);
+    ASSERT(pszName);
 
     ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
-
     pdwNamePointer = PTR_ADD(hDll, ptExportDirectory->AddressOfNames);
     for (dwNameIndex = 0; dwNameIndex < ptExportDirectory->NumberOfFunctions; dwNameIndex++)
     {
         pszExportName = PTR_ADD(hDll, *pdwNamePointer);
-        if (0 == strncmp(pszName, pszExportName, MAX_PROC_NAME_SIZE))
+        if (strncmp(pszName, pszExportName, MAX_PROC_NAME_SIZE) == 0)
         {
             break;
         }
@@ -414,13 +380,11 @@ frame_GetProcByOrdinal(
     SIZE_T nProcIndex = 0;
     FARPROC pfnProc = NULL;
 
-    NOTNULL(hDll);
+    ASSERT(hDll);
 
     ptExportDirectory = FRAME_DATA_DIRECTORY(hDll, IMAGE_DIRECTORY_ENTRY_EXPORT);
     nProcIndex = wOrdinal - ptExportDirectory->Base;
-
-    if ((0 != ptExportDirectory->NumberOfFunctions) &&
-        (nProcIndex < ptExportDirectory->NumberOfFunctions))
+    if (!ptExportDirectory->NumberOfFunctions && nProcIndex < ptExportDirectory->NumberOfFunctions)
     {
         pdwFunctionRVAs = PTR_ADD(hDll, ptExportDirectory->AddressOfFunctions);
         cbProcRVA = (SIZE_T)pdwFunctionRVAs[nProcIndex];
@@ -442,7 +406,7 @@ frame_CallEntryPoint(
 
     ASSERT(NULL != hDll);
 
-    if (0 != ptHeader->AddressOfEntryPoint)
+    if (ptHeader->AddressOfEntryPoint)
     {
         pfnEntryPoint = (PFNDLLMAIN)(DWORD_PTR)PTR_ADD(hDll, ptHeader->AddressOfEntryPoint);
         if(!pfnEntryPoint((HINSTANCE)hDll, dwReason, 0))
@@ -466,7 +430,7 @@ FRAME_LoadLibraryEx(
     HMODULE hDll = NULL;
     SIZE_T cbRelocationDelta = 0;
 
-    if ((NULL == pvImage) || (NULL == phDll))
+    if (!pvImage || !phDll)
     {
         eStatus = FRAMESTATUS_FRAME_LOADLIBRARY_INVALID_PARAMETERS;
         goto lblCleanup;
@@ -479,7 +443,6 @@ FRAME_LoadLibraryEx(
     }
 
     cbRelocationDelta = (SIZE_T)PTR_SUB(hDll, FRAME_OPTIONAL_HEADER(pvImage)->ImageBase);
-
     eStatus = frame_MapImageData(pvImage, hDll);
     if (FRAME_FAILED(eStatus))
     {
@@ -492,7 +455,7 @@ FRAME_LoadLibraryEx(
         ptOptionalHeader->AddressOfEntryPoint = 0;
     }
 
-    if (0 != cbRelocationDelta)
+    if (cbRelocationDelta)
     {
         eStatus = frame_RelocateSymbols(hDll, cbRelocationDelta);
         if (FRAME_FAILED(eStatus))
@@ -543,12 +506,11 @@ FRAME_FreeLibrary(
     __in_req HMODULE hDll
 )
 {
-    if (NULL != hDll)
+    if (hDll)
     {
         frame_CallEntryPoint(hDll, DLL_PROCESS_DETACH);
-
         frame_FreeExternalLibraries(hDll);
-        (VOID)VirtualFree((PVOID)hDll, 0, MEM_RELEASE);
+        VirtualFree((PVOID)hDll, 0, MEM_RELEASE);
     }
 }
 
@@ -562,7 +524,7 @@ FRAME_GetProcAddress(
     FRAMESTATUS eStatus = FRAMESTATUS_INVALID;
     WORD wOrdinal = 0;
 
-    if ((NULL == hDll) || (NULL == pszProcName) || (NULL == pfnProc))
+    if (!hDll || !pszProcName || !pfnProc)
     {
         eStatus = FRAMESTATUS_FRAME_GETPROCADDRESS_INVALID_PARAMETERS;
         goto lblCleanup;
@@ -582,7 +544,7 @@ FRAME_GetProcAddress(
     }
 
     *pfnProc = frame_GetProcByOrdinal(hDll, wOrdinal);
-    if (NULL == *pfnProc)
+    if (!*pfnProc)
     {
         eStatus = FRAMESTATUS_FRAME_GETPROCADDRESS_PROC_NOT_FOUND;
         goto lblCleanup;

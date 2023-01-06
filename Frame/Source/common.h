@@ -20,12 +20,6 @@
 #endif
 
 /**
- *  Name        :   NOTNULL
- *  Purpose     :   Assert that the parameter is not null.
- */
-#define NOTNULL(parameter) ASSERT(NULL != (parameter))
-
-/**
  *  Name        :   __in_req
  *  Purpose     :   SAL annotation to denote both __in and __notnull.
  */

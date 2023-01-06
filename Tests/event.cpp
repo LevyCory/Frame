@@ -13,6 +13,7 @@ Event::~Event()
         if (m_event)
         {
             CloseHandle(m_event);
+            m_event = nullptr;
         }
     }
     catch (...)
@@ -38,17 +39,7 @@ void Event::reset()
 
 bool Event::is_set()
 {
-    switch (WaitForSingleObject(m_event, 0))
-    {
-    case WAIT_OBJECT_0:
-        return true;
-
-    case WAIT_TIMEOUT:
-        return false;
-
-    default:
-        throw std::exception("Event wait failed.");
-    }
+    return WaitForSingleObject(m_event, 0) == WAIT_OBJECT_0;
 }
 
 HANDLE Event::_s_create_event(const std::string& name, bool manual_reset, bool initial_state)

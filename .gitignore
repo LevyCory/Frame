@@ -56,3 +56,4 @@ dkms.conf
 Tests/x64
 Tests/x86
 Bin/*
+Vendor/*
